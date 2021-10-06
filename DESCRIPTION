@@ -1,0 +1,38 @@
+Package: addressMatchR
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "DALL",
+           family = "NHSBSA",
+           role = c("aut","cre"),
+           email = "nhsbsa.dall@nhs.net"
+		   ),
+	   person(given = "Adnan",
+			      family = "Shroufi",
+            role = "ctb",
+            email = "adnan.shroufi@nhs.net"
+       ),
+	   person(given = "Kayoung",
+			  family = "Goffe",
+			  role = "ctb",
+			  email = "kayoung.goffe1@nhs.net"
+			  )
+	  )
+Description: Helper package for matching care home address using AddressBase Plus 
+License: Apache License (>= 2)
+URL: https://github.com/nhsbsa-data-analytics/addressMatchR
+BugReports: https://github.com/nhsbsa-data-analytics/addressMatchR/issues
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Depends: 
+    R (>= 3.2.0)
+Imports: 
+    DBI,
+    odbc,
+    dbplyr,
+    ggplot2,
+    tidytext
+Remotes: 
+    nhs-r-community/nhsrtheme
