@@ -1,5 +1,5 @@
 Package: addressMatchR
-Title: What the Package Does (One Line, Title Case)
+Title: This package matches address
 Version: 0.0.0.9000
 Authors@R: 
     c(person(given = "DALL",
@@ -29,13 +29,14 @@ RoxygenNote: 7.1.2
 Depends: 
     R (>= 3.2.0)
 Imports: 
-    DBI,
-    odbc,
     dbplyr,
-    ggplot2,
-    tidytext
+    ggplot2
 Remotes: 
     nhs-r-community/nhsrtheme
+    nhsbsa-data-analytics/nhsbsaR
 Suggests: 
+    rmarkdown,
+    knitr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr
