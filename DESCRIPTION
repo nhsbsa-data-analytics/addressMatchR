@@ -16,6 +16,11 @@ Authors@R:
 			  family = "Goffe",
 			  role = "ctb",
 			  email = "kayoung.goffe1@nhs.net"
+			  ),
+	   person(given = "Adam",
+			  family = "Ivison",
+			  role = "ctb",
+			  email = "adam.ivison@nhs.net"
 			  )
 	  )
 Description: Helper package for matching care home address using AddressBase Plus 
@@ -29,11 +34,10 @@ RoxygenNote: 7.1.2
 Depends: 
     R (>= 3.2.0)
 Imports: 
-    dbplyr,
-    ggplot2
-Remotes: 
-    nhs-r-community/nhsrtheme
-    nhsbsa-data-analytics/nhsbsaR
+    jsonlite,
+    utils,
+    DBI,
+    stringi
 Suggests: 
     rmarkdown,
     knitr,
