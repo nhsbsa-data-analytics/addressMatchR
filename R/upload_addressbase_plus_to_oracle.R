@@ -23,7 +23,7 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
   # https://github.com/OrdnanceSurvey/AddressBase/blob/master/Loading_Scripts/Oracle/AddressBase_Plus_and_Islands/Oracle_AddressBase_Plus_createtable.sql
   # NOTES:
   #   * Added BUILDING_NUMBER: "NUMBER"
-  #   * Increased STREET_DESCRIPTION to "VARCHAR2(102)" from "VARCHAR2(101)"
+  #   * Increased STREET_DESCRIPTION to "VARCHAR2(150)" from "VARCHAR2(101)"
   #   * Removed GEOMETRY as we aren't loading it
   sql_fields <- c(
     DATE = "DATE", # Added as we are stacking different cuts of AddressBase Plus
@@ -76,7 +76,7 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
     OS_TOPO_TOID_VERSION = "NUMBER",
     VOA_CT_RECORD = "NUMBER",
     VOA_NDR_RECORD = "NUMBER",
-    STREET_DESCRIPTION = "VARCHAR2(102)", # increased from VARCHAR2(101)
+    STREET_DESCRIPTION = "VARCHAR2(150)", # increased from VARCHAR2(101)
     ALT_LANGUAGE_STREET_DESCRIPTOR = "VARCHAR2(110)",
     DEP_THOROUGHFARE = "VARCHAR2(80)",
     THOROUGHFARE = "VARCHAR2(80)",
