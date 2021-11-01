@@ -7,40 +7,26 @@
 #' Using guidance from
 #' https://www.ordnancesurvey.co.uk/documents/addressbase-products-getting-started-guide2.pdf
 #'
-#' @param con
-#' @param data_package_location
-#' @param append_existing
+#' @param con DB Connection.
+#' @param path Path to .csv files
+#' @param pattern Pattern of files to upload. Default is NULL (all files)
 #'
 #' @examples
 #'
 #' @export
-upload_addressbase_plus_to_oracle <- function(
-  con,
-  data_package_location,
-  append_existing = TRUE
-) {
+upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
 
   # Get a list of the data files
-  data_files <- list.files(
-    path = data_package_location,
-    pattern = "data/*.csv$",
-    recursive = TRUE,
-    full.names = TRUE
-  )
-
-  # What date are we loading
-  date <- paste0(
-    substr(data_files[1], 60, 61),
-    "/",
-    substr(data_files[1], 57, 58),
-    "/",
-    substr(data_files[1], 52, 55)
-  )
+  data_files <- list.files(path = path, pattern = pattern, full.names = TRUE)
 
   # Define the fields and types cribbed from
   # https://github.com/OrdnanceSurvey/AddressBase/blob/master/Loading_Scripts/Oracle/AddressBase_Plus_and_Islands/Oracle_AddressBase_Plus_createtable.sql
-  fields = c(
-    DATE = "DATE",
+  # NOTES:
+  #   * Added BUILDING_NUMBER: "NUMBER"
+  #   * Increased STREET_DESCRIPTION to "VARCHAR2(102)" from "VARCHAR2(101)"
+  #   * Removed GEOMETRY as we aren't loading it
+  sql_fields <- c(
+    DATE = "DATE", # Added as we are stacking different cuts of AddressBase Plus
     UPRN = "NUMBER",
     UDPRN = "NUMBER",
     CHANGE_TYPE = "VARCHAR2(1)",
@@ -64,6 +50,7 @@ upload_addressbase_plus_to_oracle <- function(
     LEGAL_NAME = "VARCHAR2(60)",
     SUB_BUILDING_NAME = "VARCHAR2(30)",
     BUILDING_NAME = "VARCHAR2(50)",
+    BUILDING_NUMBER = "NUMBER", # missing
     SAO_START_NUMBER = "NUMBER",
     SAO_START_SUFFIX = "VARCHAR2(2)",
     SAO_END_NUMBER = "NUMBER",
@@ -89,7 +76,7 @@ upload_addressbase_plus_to_oracle <- function(
     OS_TOPO_TOID_VERSION = "NUMBER",
     VOA_CT_RECORD = "NUMBER",
     VOA_NDR_RECORD = "NUMBER",
-    STREET_DESCRIPTION = "VARCHAR2(101)",
+    STREET_DESCRIPTION = "VARCHAR2(102)", # increased from VARCHAR2(101)
     ALT_LANGUAGE_STREET_DESCRIPTOR = "VARCHAR2(110)",
     DEP_THOROUGHFARE = "VARCHAR2(80)",
     THOROUGHFARE = "VARCHAR2(80)",
@@ -116,33 +103,48 @@ upload_addressbase_plus_to_oracle <- function(
     MULTI_OCC_COUNT = "NUMBER",
     VOA_NDR_P_DESC_CODE = "VARCHAR2(5)",
     VOA_NDR_SCAT_CODE = "VARCHAR2(4)",
-    ALT_LANGUAGE = "VARCHAR2(3)",
-    GEOMETRY = "MDSYS.SDO_GEOMETRY"
+    ALT_LANGUAGE = "VARCHAR2(3)"#,
+    #GEOMETRY = "VARCHAR2(8)" # not loading this
   )
 
-  if (!append_existing) {
-    # Create the table if needed - fields and types cribbed from
-    # https://github.com/OrdnanceSurvey/AddressBase/blob/master/Loading_Scripts/Oracle/AddressBase_Plus_and_Islands/Oracle_AddressBase_Plus_createtable.sql
+  if (!DBI::dbExistsTable(conn = con, name = "ADDRESSBASE_PLUS")) {
+    # Create the table if needed
     DBI::dbCreateTable(
       conn = con,
       name = "ADDRESSBASE_PLUS",
-      fields = fields
+      fields = sql_fields
     )
-
   }
+
+  # Translate the field types for `{readr}` to speed up loading into R
+  readr_fields <- sapply(
+    X = sql_fields[2:length(sql_fields)],
+    FUN = function (x) switch(x, NUMBER = "n", FLOAT = "d", DATE = "D", "c")
+  )
 
   # Loop over the csv files and append them
   for (data_file in data_files) {
 
-    DBI::dbAppendTable(
-      conn = con,
-      name = "ADDRESSBASE_PLUS",
-      value = data_file %>%
-        read.csv(col.names = fields %>% setdiff(., "DATE")) %>%
-        # Add the date column so we can stack different cuts of AddressBase Plus
-        # in one table
-        tibble::add_column(DATE = date, .before = 1)
-    )
+    # What date are we loading
+    file_name <- tail(x = strsplit(data_file[1], "/")[[1]], n = 1)
+    date <- substr(file_name, 22, 31)
+
+    # Read the csv and append date column to front
+    tmp_df <- data_file %>%
+      readr::read_csv(
+        col_names = names(readr_fields),
+        col_types = paste(readr_fields, collapse = "")
+      ) %>%
+      # Add the date column so we can stack different cuts of AddressBase Plus
+      # in one table
+      tibble::add_column(DATE = date, .before = 1) %>%
+      # Convert everything to character for loading into DB
+      dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+
+    message(paste("Starting upload of", nrow(tmp_df), "rows from", file_name))
+
+    # Upload file
+    DBI::dbAppendTable(conn = con, name = "ADDRESSBASE_PLUS", value = tmp_df)
 
   }
 
