@@ -26,7 +26,7 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
   #   * Increased STREET_DESCRIPTION to "VARCHAR2(150)" from "VARCHAR2(101)"
   #   * Removed GEOMETRY as we aren't loading it
   sql_fields <- c(
-    DATE = "DATE", # Added as we are stacking different cuts of AddressBase Plus
+    ISSUE_DATE = "DATE", # Added as stacking different AddressBase Plus cuts
     UPRN = "NUMBER",
     UDPRN = "NUMBER",
     CHANGE_TYPE = "VARCHAR2(1)",
@@ -137,7 +137,7 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
       ) %>%
       # Add the date column so we can stack different cuts of AddressBase Plus
       # in one table
-      tibble::add_column(DATE = date, .before = 1) %>%
+      tibble::add_column(ISSUE_DATE = date, .before = 1) %>%
       # Convert everything to character for loading into DB
       dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
 
