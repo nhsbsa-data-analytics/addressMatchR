@@ -17,7 +17,7 @@ calc_oracle_tokenise <- function(df, col) {
 
   # Pull the columns and create a comma'd list sring of them "col1, col2, col3"
   # to use in the SQL query
-  col_string <- paste0(colnames(addressbase_plus_db), collapse = ", ")
+  col_string <- paste0(colnames(df), collapse = ", ")
 
   # Formulate the SQL for tokenising in Oracle
   sql_query <- dbplyr::build_sql(
