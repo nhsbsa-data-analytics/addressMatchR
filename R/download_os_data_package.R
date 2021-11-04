@@ -12,15 +12,12 @@
 #' @param unzip Whether or not to unzip the file. Default is `TRUE`.
 #'
 #' @examples
-#'
 #' @export
-download_os_data_package <- function(
-  key = Sys.getenv("OS_API_KEY"),
-  data_package_id,
-  data_package_version = NA,
-  destination,
-  unzip = TRUE
-) {
+download_os_data_package <- function(key = Sys.getenv("OS_API_KEY"),
+                                     data_package_id,
+                                     data_package_version = NA,
+                                     destination,
+                                     unzip = TRUE) {
 
   # Define the url for the API call
   base_endpoint <- "https://api.os.uk/downloads/v1/"
@@ -46,7 +43,6 @@ download_os_data_package <- function(
     # Get the most recent id as the version
     data_package_version <-
       versions_df[order(rev(as.Date(versions_df$createdOn))), "id"][1]
-
   }
 
   # Get the download link
@@ -73,7 +69,6 @@ download_os_data_package <- function(
     )
     utils::unzip(zipfile = tmp, exdir = destination)
     unlink(tmp)
-
   } else {
 
     # Otherwise download to the destination
@@ -81,8 +76,5 @@ download_os_data_package <- function(
       url = data_package_download_url,
       destfile = destination
     )
-
   }
-
 }
-

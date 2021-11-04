@@ -5,10 +5,8 @@
 #' @param df AddressBase Plus DB table
 #'
 #' @examples
-#'
 #' @export
 calc_addressbase_plus_dpa_single_line_address <- function(df) {
-
   df %>%
     dplyr::mutate(
       DPA_SINGLE_LINE_ADDRESS = paste0(
@@ -65,7 +63,6 @@ calc_addressbase_plus_dpa_single_line_address <- function(df) {
         POSTCODE
       )
     )
-
 }
 
 
@@ -76,10 +73,8 @@ calc_addressbase_plus_dpa_single_line_address <- function(df) {
 #' @param df AddressBase Plus DB table
 #'
 #' @examples
-#'
 #' @export
 calc_addressbase_plus_geo_single_line_address <- function(df) {
-
   df %>%
     dplyr::mutate(
       GEO_SINGLE_LINE_ADDRESS = paste0(
@@ -96,7 +91,7 @@ calc_addressbase_plus_geo_single_line_address <- function(df) {
         ifelse(
           test = !is.null(SAO_START_NUMBER) &
             is.null(SAO_START_SUFFIX) &
-            is.null(SAO_END_NUMBER) ,
+            is.null(SAO_END_NUMBER),
           yes = paste0(SAO_START_NUMBER, ", "),
           no = ifelse(
             test = is.null(SAO_START_NUMBER),
@@ -139,7 +134,7 @@ calc_addressbase_plus_geo_single_line_address <- function(df) {
         ifelse(
           test = !is.null(PAO_START_NUMBER) &
             is.null(PAO_START_SUFFIX) &
-            is.null(PAO_END_NUMBER) ,
+            is.null(PAO_END_NUMBER),
           yes = paste0(PAO_START_NUMBER, ", "),
           no = ifelse(
             test = is.null(PAO_START_NUMBER),
@@ -196,5 +191,4 @@ calc_addressbase_plus_geo_single_line_address <- function(df) {
         )
       )
     )
-
 }

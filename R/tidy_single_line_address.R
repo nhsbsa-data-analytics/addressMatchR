@@ -7,16 +7,13 @@
 #' @param remove_postcode If to remove the postcode. Default is TRUE.
 #'
 #' @examples
-#'
 #' @export
 tidy_single_line_address <- function(df, col, remove_postcode = TRUE) {
 
   # Remove postcode from single line address if neccesary
   if (remove_postcode) {
-
     df <- df %>%
       dplyr::mutate({{ col }} := REGEXP_REPLACE({{ col }}, "[,][^,]+$", ""))
-
   }
 
   # Prep the single line address for tokenisation
@@ -40,6 +37,5 @@ tidy_single_line_address <- function(df, col, remove_postcode = TRUE) {
 
       # Remove any spaces around a hyphen
       {{ col }} := REGEXP_REPLACE({{ col }}, " - ", "-")
-
     )
 }

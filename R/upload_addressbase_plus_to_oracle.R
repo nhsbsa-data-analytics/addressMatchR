@@ -12,7 +12,6 @@
 #' @param pattern Pattern of files to upload. Default is NULL (all files)
 #'
 #' @examples
-#'
 #' @export
 upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
 
@@ -103,8 +102,8 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
     MULTI_OCC_COUNT = "NUMBER",
     VOA_NDR_P_DESC_CODE = "VARCHAR2(5)",
     VOA_NDR_SCAT_CODE = "VARCHAR2(4)",
-    ALT_LANGUAGE = "VARCHAR2(3)"#,
-    #GEOMETRY = "VARCHAR2(8)" # not loading this
+    ALT_LANGUAGE = "VARCHAR2(3)" # ,
+    # GEOMETRY = "VARCHAR2(8)" # not loading this
   )
 
   if (!DBI::dbExistsTable(conn = con, name = "ADDRESSBASE_PLUS")) {
@@ -119,7 +118,14 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
   # Translate the field types for `{readr}` to speed up loading into R
   readr_fields <- sapply(
     X = sql_fields[2:length(sql_fields)],
-    FUN = function (x) switch(x, NUMBER = "n", FLOAT = "d", DATE = "D", "c")
+    FUN = function(x) {
+      switch(x,
+        NUMBER = "n",
+        FLOAT = "d",
+        DATE = "D",
+        "c"
+      )
+    }
   )
 
   # Loop over the csv files and append them
@@ -145,7 +151,5 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
 
     # Upload file
     DBI::dbAppendTable(conn = con, name = "ADDRESSBASE_PLUS", value = tmp_df)
-
   }
-
 }
