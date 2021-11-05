@@ -16,6 +16,11 @@ calc_addressbase_plus_dpa_single_line_address <- function(df) {
           no = ""
         ),
         ifelse(
+          test = !is.null(RM_ORGANISATION_NAME),
+          yes = paste0(RM_ORGANISATION_NAME, ", "),
+          no = ""
+        ),
+        ifelse(
           test = !is.null(SUB_BUILDING_NAME),
           yes = paste0(SUB_BUILDING_NAME, ", "),
           no = ""
