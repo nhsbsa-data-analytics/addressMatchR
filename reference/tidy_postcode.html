@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Upload AddressBase Plus to Oracle — upload_addressbase_plus_to_oracle • addressMatchR</title>
+<title>Tidy a postcode — tidy_postcode • addressMatchR</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,8 @@
 
 
 
-<meta property="og:title" content="Upload AddressBase Plus to Oracle — upload_addressbase_plus_to_oracle" />
-<meta property="og:description" content="Upload AddressBase Plus to an Oracle DB. First download the data package for
-AddressBase Plus using addressMatchR::download_os_data_package() and then
-load it into the DB using this function." />
+<meta property="og:title" content="Tidy a postcode — tidy_postcode" />
+<meta property="og:description" content="Tidy a postcode so it is ready for joining." />
 
 
 
@@ -110,41 +108,35 @@ load it into the DB using this function." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Upload AddressBase Plus to Oracle</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nhsbsa-data-analytics/addressMatchR/blob/master/R/upload_addressbase_plus_to_oracle.R'><code>R/upload_addressbase_plus_to_oracle.R</code></a></small>
-    <div class="hidden name"><code>upload_addressbase_plus_to_oracle.Rd</code></div>
+    <h1>Tidy a postcode</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nhsbsa-data-analytics/addressMatchR/blob/master/R/tidy_postcode.R'><code>R/tidy_postcode.R</code></a></small>
+    <div class="hidden name"><code>tidy_postcode.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Upload AddressBase Plus to an Oracle DB. First download the data package for
-AddressBase Plus using <code><a href='download_os_data_package.html'>addressMatchR::download_os_data_package()</a></code> and then
-load it into the DB using this function.</p>
+    <p>Tidy a postcode so it is ready for joining.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>upload_addressbase_plus_to_oracle</span><span class='op'>(</span><span class='va'>con</span>, <span class='va'>path</span>, pattern <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>tidy_postcode</span><span class='op'>(</span><span class='va'>df</span>, <span class='va'>col</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>con</th>
-      <td><p>DB Connection.</p></td>
+      <th>df</th>
+      <td><p>Database table</p></td>
     </tr>
     <tr>
-      <th>path</th>
-      <td><p>Path to .csv files</p></td>
-    </tr>
-    <tr>
-      <th>pattern</th>
-      <td><p>Pattern of files to upload. Default is NULL (all files)</p></td>
+      <th>col</th>
+      <td><p>Postcode column</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Using guidance from
-https://www.ordnancesurvey.co.uk/documents/addressbase-products-getting-started-guide2.pdf</p>
-
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
