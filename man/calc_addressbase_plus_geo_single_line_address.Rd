@@ -12,6 +12,3 @@ calc_addressbase_plus_geo_single_line_address(df)
 \description{
 Calculate AddressBase Plus GEO single line address.
 }
-\examples{
-
-}

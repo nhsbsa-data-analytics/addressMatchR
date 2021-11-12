@@ -12,6 +12,3 @@ calc_addressbase_plus_dpa_single_line_address(df)
 \description{
 Calculate AddressBase Plus DPA single line address.
 }
-\examples{
-
-}
