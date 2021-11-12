@@ -20,6 +20,9 @@ tidy_single_line_address <- function(df, col, remove_postcode = TRUE) {
   df %>%
     dplyr::mutate(
 
+      # Uppercase
+      {{ col }} := toupper({{ col }}),
+
       # Replace special characters with a single space
       {{ col }} := REGEXP_REPLACE({{ col }}, "[,.();:#'']", " "),
 
@@ -36,6 +39,9 @@ tidy_single_line_address <- function(df, col, remove_postcode = TRUE) {
       {{ col }} := REGEXP_REPLACE({{ col }}, "( ){2,}", " "),
 
       # Remove any spaces around a hyphen
-      {{ col }} := REGEXP_REPLACE({{ col }}, " - ", "-")
+      {{ col }} := REGEXP_REPLACE({{ col }}, " - ", "-"),
+
+      # Remove leading / trailing whitespace
+      {{ col }} := TRIM({{ col }})
     )
 }
