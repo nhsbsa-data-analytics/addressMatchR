@@ -16,6 +16,3 @@ tidy_single_line_address(df, col, remove_postcode = TRUE)
 \description{
 Tidy a single line address ready for tokenising.
 }
-\examples{
-
-}

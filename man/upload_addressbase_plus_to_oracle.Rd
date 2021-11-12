@@ -22,6 +22,3 @@ load it into the DB using this function.
 Using guidance from
 https://www.ordnancesurvey.co.uk/documents/addressbase-products-getting-started-guide2.pdf
 }
-\examples{
-
-}

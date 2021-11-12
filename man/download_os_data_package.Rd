@@ -29,6 +29,3 @@ recent.}
 \description{
 Download a data package from Ordinance Survey Data Hub
 }
-\examples{
-
-}
