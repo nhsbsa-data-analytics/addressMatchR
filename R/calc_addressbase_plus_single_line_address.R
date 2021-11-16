@@ -3,10 +3,15 @@
 #' Calculate AddressBase Plus DPA single line address.
 #'
 #' @param df AddressBase Plus DB table
+#' @param include_postcode Whether or not to include postcode. Default is FALSE.
 #'
 #' @examples
 #' @export
-calc_addressbase_plus_dpa_single_line_address <- function(df) {
+calc_addressbase_plus_dpa_single_line_address <- function(
+  df,
+  include_postcode = FALSE
+) {
+
   df %>%
     dplyr::mutate(
       DPA_SINGLE_LINE_ADDRESS = paste0(
@@ -65,7 +70,11 @@ calc_addressbase_plus_dpa_single_line_address <- function(df) {
           yes = paste0(POST_TOWN, ", "),
           no = ""
         ),
-        POSTCODE
+        ifelse(
+          test = include_postcode,
+          yes = POSTCODE,
+          no = ""
+        ),
       )
     )
 }
@@ -76,10 +85,15 @@ calc_addressbase_plus_dpa_single_line_address <- function(df) {
 #' Calculate AddressBase Plus GEO single line address.
 #'
 #' @param df AddressBase Plus DB table
+#' @param include_postcode Whether or not to include postcode. Default is FALSE.
 #'
 #' @examples
 #' @export
-calc_addressbase_plus_geo_single_line_address <- function(df) {
+calc_addressbase_plus_geo_single_line_address <- function(
+  df,
+  include_postcode = FALSE
+) {
+
   df %>%
     dplyr::mutate(
       GEO_SINGLE_LINE_ADDRESS = paste0(
@@ -190,7 +204,7 @@ calc_addressbase_plus_geo_single_line_address <- function(df) {
           no = ""
         ),
         ifelse(
-          test = !is.null(POSTCODE_LOCATOR),
+          test = !is.null(POSTCODE_LOCATOR) & include_postcode,
           yes = POSTCODE_LOCATOR,
           no = ""
         )
