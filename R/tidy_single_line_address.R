@@ -4,13 +4,13 @@
 #'
 #' @param df Database table
 #' @param col Single line address column
-#' @param remove_postcode If to remove the postcode. Default is TRUE.
+#' @param remove_postcode If to remove the postcode. Default is FALSE
 #'
 #' @examples
 #' @export
-tidy_single_line_address <- function(df, col, remove_postcode = TRUE) {
+tidy_single_line_address <- function(df, col, remove_postcode = FALSE) {
 
-  # Remove postcode from single line address if neccesary
+  # Remove postcode from single line address if necessary (e.g. after last ",")
   if (remove_postcode) {
     df <- df %>%
       dplyr::mutate({{ col }} := REGEXP_REPLACE({{ col }}, "[,][^,]+$", ""))
@@ -20,28 +20,13 @@ tidy_single_line_address <- function(df, col, remove_postcode = TRUE) {
   df %>%
     dplyr::mutate(
 
-      # Uppercase
-      {{ col }} := toupper({{ col }}),
-
-      # Replace special characters with a single space
-      {{ col }} := REGEXP_REPLACE({{ col }}, "[,.();:#'']", " "),
-
-      # Add a space between a digit followed by a non-digit (e.g. "1A" -> "1 A")
-      {{ col }} := REGEXP_REPLACE({{ col }}, "(\\d)(\\D)", "\\1 \\2"),
-
-      # Add a space between a non-digit followed by a digit (e.g. "A1" -> "A 1")
-      {{ col }} := REGEXP_REPLACE({{ col }}, "(\\D)(\\d)", "\\1 \\2"),
-
-      # Replace ambersand character with "and"
-      {{ col }} := REGEXP_REPLACE({{ col }}, "&", " AND "),
-
-      # Replace multiple spaces with a single space
-      {{ col }} := REGEXP_REPLACE({{ col }}, "( ){2,}", " "),
-
-      # Remove any spaces around a hyphen
-      {{ col }} := REGEXP_REPLACE({{ col }}, " - ", "-"),
-
-      # Remove leading / trailing whitespace
-      {{ col }} := TRIM({{ col }})
+      {{ col }} := trimws(REPLACE(REGEXP_REPLACE(REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(toupper({{ col }}),           # Uppercase
+                                                                                                              "[,.();:#'']", " "),  # replace special characters with a single space
+                                                                                                              "(\\d)(\\D)", "\\1 \\2"), # add a space between any digit followed by a non-digit (e.g. 1A becomes 1 A)
+                                                                                                              "(\\D)(\\d)", "\\1 \\2"), # add a space between any non-digit followed by a digit (e.g. A1 becomes A 1)
+                                                                                                              "&", " AND "),        # replace the ampersand character with the string "and"
+                                                                                                              "( ){2,}", " "),      # replace any multiple spaces with a single space
+                                                                                                              " - ", "-")           # remove any spaces around a hyphen
+                                                                                                              )                     # Trim whitespace
     )
 }

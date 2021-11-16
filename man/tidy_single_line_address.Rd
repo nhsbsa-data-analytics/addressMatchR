@@ -4,14 +4,14 @@
 \alias{tidy_single_line_address}
 \title{Tidy a single line address}
 \usage{
-tidy_single_line_address(df, col, remove_postcode = TRUE)
+tidy_single_line_address(df, col, remove_postcode = FALSE)
 }
 \arguments{
 \item{df}{Database table}
 
 \item{col}{Single line address column}
 
-\item{remove_postcode}{If to remove the postcode. Default is TRUE.}
+\item{remove_postcode}{If to remove the postcode. Default is FALSE}
 }
 \description{
 Tidy a single line address ready for tokenising.

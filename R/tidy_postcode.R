@@ -14,11 +14,8 @@ tidy_postcode <- function(df, col) {
   df %>%
     dplyr::mutate(
 
-      # Uppercase
-      {{ col }} := toupper({{ col }}),
-
-      # Remove anything not a character or digit
-      {{ col }} := REGEXP_REPLACE({{ col }}, "[^A-Z0-9]", "")
+      {{ col }} := REGEXP_REPLACE(toupper({{ col }}), # Uppercase
+                                  "[^A-Z0-9]", "")    # Remove anything not a character or digit
 
     )
 }

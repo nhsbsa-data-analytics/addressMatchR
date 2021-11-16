@@ -4,10 +4,12 @@
 \alias{calc_addressbase_plus_dpa_single_line_address}
 \title{Calculate AddressBase Plus DPA single line address}
 \usage{
-calc_addressbase_plus_dpa_single_line_address(df)
+calc_addressbase_plus_dpa_single_line_address(df, include_postcode = FALSE)
 }
 \arguments{
 \item{df}{AddressBase Plus DB table}
+
+\item{include_postcode}{Whether or not to include postcode. Default is FALSE.}
 }
 \description{
 Calculate AddressBase Plus DPA single line address.
