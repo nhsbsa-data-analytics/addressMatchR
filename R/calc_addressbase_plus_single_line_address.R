@@ -12,7 +12,8 @@ calc_addressbase_plus_dpa_single_line_address <- function(
   include_postcode = FALSE
 ) {
 
-  df %>%
+  # Create the single line address
+  df <- df %>%
     dplyr::mutate(
       DPA_SINGLE_LINE_ADDRESS = paste0(
         ifelse(
@@ -69,14 +70,22 @@ calc_addressbase_plus_dpa_single_line_address <- function(
           test = !is.null(POST_TOWN),
           yes = paste0(POST_TOWN, ", "),
           no = ""
-        ),
-        ifelse(
-          test = include_postcode,
-          yes = POSTCODE,
-          no = ""
-        ),
+        )
       )
     )
+
+  # Add the postcode if necessary
+  if (include_postcode) {
+
+    df <- df %>%
+      dplyr::mutate(
+        DPA_SINGLE_LINE_ADDRESS = paste0(DPA_SINGLE_LINE_ADDRESS, POSTCODE)
+      )
+
+  }
+
+  df
+
 }
 
 
@@ -94,7 +103,8 @@ calc_addressbase_plus_geo_single_line_address <- function(
   include_postcode = FALSE
 ) {
 
-  df %>%
+  # Create the single line address
+  df <- df %>%
     dplyr::mutate(
       GEO_SINGLE_LINE_ADDRESS = paste0(
         ifelse(
@@ -202,12 +212,27 @@ calc_addressbase_plus_geo_single_line_address <- function(
           test = !is.null(TOWN_NAME),
           yes = paste0(TOWN_NAME, ", "),
           no = ""
-        ),
-        ifelse(
-          test = !is.null(POSTCODE_LOCATOR) & include_postcode,
-          yes = POSTCODE_LOCATOR,
-          no = ""
         )
       )
     )
+
+  # Add the postcode if necessary
+  if (include_postcode) {
+
+    df <- df %>%
+      dplyr::mutate(
+        GEO_SINGLE_LINE_ADDRESS = paste0(
+          GEO_SINGLE_LINE_ADDRESS,
+          ifelse(
+            test = !is.null(POSTCODE_LOCATOR),
+            yes = POSTCODE_LOCATOR,
+            no = ""
+          )
+        )
+      )
+
+  }
+
+  df
+
 }
