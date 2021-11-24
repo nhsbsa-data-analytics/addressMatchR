@@ -12,12 +12,12 @@
 #' @examples
 #' @export
 calc_match_addresses <- function(
- primary_df,
- primary_postcode_col,
- primary_address_col,
- lookup_df,
- lookup_postcode_col,
- lookup_address_col
+  primary_df,
+  primary_postcode_col,
+  primary_address_col,
+  lookup_df,
+  lookup_postcode_col,
+  lookup_address_col
 ) {
 
   # Rename the lookup postcode column name to be the same as the primary
@@ -129,11 +129,12 @@ calc_match_addresses <- function(
   # We can also apply some other filters
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(
-      SUBSTR(TOKEN_LOOKUP, 1, 1) == SUBSTR(TOKEN_PRIMARY, 1, 1) |
+      # Tokens share the same first letter
+      substr(TOKEN_LOOKUP, 1, 1) == substr(TOKEN_PRIMARY, 1, 1) |
         # Tokens share same second letter
-        SUBSTR(TOKEN_LOOKUP, 2, 1) == SUBSTR(TOKEN_PRIMARY, 2, 1) |
+        substr(TOKEN_LOOKUP, 2, 1) == substr(TOKEN_PRIMARY, 2, 1) |
         # Tokens share same last letter
-        SUBSTR(TOKEN_LOOKUP, LENGTH(LOOKUP_ADDRESS), 1)  ==  SUBSTR(TOKEN_PRIMARY, LENGTH(TOKEN_PRIMARY), 1) |
+        substr(TOKEN_LOOKUP, nchar(LOOKUP_ADDRESS), 1) == substr(TOKEN_PRIMARY, nchar(TOKEN_PRIMARY), 1) |
         # One token is a substring of the other
         INSTR(TOKEN_LOOKUP, TOKEN_PRIMARY) > 1 |
         INSTR(TOKEN_PRIMARY, TOKEN_LOOKUP) > 1
@@ -165,14 +166,10 @@ calc_match_addresses <- function(
     dplyr::summarise(SCORE = max(SCORE)) %>%
     dplyr::ungroup()
 
-  # Sum the score for each single line address combination and also include a
-  # theoretical max score
+  # Sum the score for each single line address combination
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(dplyr::across(-c(TOKEN_PRIMARY, TOKEN_TYPE, SCORE))) %>%
-    dplyr::summarise(
-      SCORE = sum(SCORE),
-      MAX_SCORE = sum(ifelse(TOKEN_TYPE == "D", 4, 1))
-    ) %>%
+    dplyr::summarise(SCORE = sum(SCORE)) %>%
     dplyr::ungroup()
 
   # Normalise the score
