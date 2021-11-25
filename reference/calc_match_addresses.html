@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • addressMatchR</title>
+<title>Match two sets of addresses — calc_match_addresses • addressMatchR</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Match two sets of addresses — calc_match_addresses" />
+<meta property="og:description" content="Match a distinct dataframe of primary addresses to a distinct dataframe of
+lookup addresses." />
 
 
 
@@ -58,7 +60,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -105,78 +107,63 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Match two sets of addresses</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nhsbsa-data-analytics/addressMatchR/blob/master/R/calc_match_addresses.R'><code>R/calc_match_addresses.R</code></a></small>
+    <div class="hidden name"><code>calc_match_addresses.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Match a distinct dataframe of primary addresses to a distinct dataframe of
+lookup addresses.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>calc_match_addresses</span><span class='op'>(</span>
+  <span class='va'>primary_df</span>,
+  <span class='va'>primary_postcode_col</span>,
+  <span class='va'>primary_address_col</span>,
+  <span class='va'>lookup_df</span>,
+  <span class='va'>lookup_postcode_col</span>,
+  <span class='va'>lookup_address_col</span>
+<span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="calc_addressbase_plus_dpa_single_line_address.html">calc_addressbase_plus_dpa_single_line_address()</a></code> </p>
-        </td>
-        <td><p>Calculate AddressBase Plus DPA single line address</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="calc_addressbase_plus_geo_single_line_address.html">calc_addressbase_plus_geo_single_line_address()</a></code> </p>
-        </td>
-        <td><p>Calculate AddressBase Plus GEO single line address</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="calc_match_addresses.html">calc_match_addresses()</a></code> </p>
-        </td>
-        <td><p>Match two sets of addresses</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="download_os_data_package.html">download_os_data_package()</a></code> </p>
-        </td>
-        <td><p>Download a data package from Ordinance Survey Data Hub</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tidy_postcode.html">tidy_postcode()</a></code> </p>
-        </td>
-        <td><p>Tidy a postcode</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tidy_single_line_address.html">tidy_single_line_address()</a></code> </p>
-        </td>
-        <td><p>Tidy a single line address</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="upload_addressbase_plus_to_oracle.html">upload_addressbase_plus_to_oracle()</a></code> </p>
-        </td>
-        <td><p>Upload AddressBase Plus to Oracle</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>primary_df</th>
+      <td><p>Dataframe of distinct primary addresses</p></td>
+    </tr>
+    <tr>
+      <th>primary_postcode_col</th>
+      <td><p>Column containing the primary postcode</p></td>
+    </tr>
+    <tr>
+      <th>primary_address_col</th>
+      <td><p>Column containing the primary single line address</p></td>
+    </tr>
+    <tr>
+      <th>lookup_df</th>
+      <td><p>Dataframe of distinct lookup addresses</p></td>
+    </tr>
+    <tr>
+      <th>lookup_postcode_col</th>
+      <td><p>Column containing the lookup postcode</p></td>
+    </tr>
+    <tr>
+      <th>lookup_address_col</th>
+      <td><p>Column containing the lookup single line address</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Returns a dataframe of exact matches (postcode and single line address) and
+non exact matches (postcode and fuzzy single line address). For non exact
+matches it will retain draws.</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
