@@ -3,6 +3,7 @@
 export("%>%")
 export(calc_addressbase_plus_dpa_single_line_address)
 export(calc_addressbase_plus_geo_single_line_address)
+export(calc_match_addresses)
 export(download_os_data_package)
 export(tidy_postcode)
 export(tidy_single_line_address)
