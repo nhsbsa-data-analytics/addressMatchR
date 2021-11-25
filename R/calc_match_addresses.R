@@ -1,13 +1,18 @@
-#' Calculate best match addresses
+#' Match two sets of addresses
 #'
-#' Match one set of addresses to another.
+#' Match a distinct dataframe of primary addresses to a distinct dataframe of
+#' lookup addresses.
 #'
-#' @param primary_df primary set of addresses
-#' @param primary_postcode_col
-#' @param primary_address_col
-#' @param lookup_df lookup set of addresses
-#' @param lookup_postcode_col
-#' @param lookup_address_col
+#' Returns a dataframe of exact matches (postcode and single line address) and
+#' non exact matches (postcode and fuzzy single line address). For non exact
+#' matches it will retain draws.
+#'
+#' @param primary_df Dataframe of distinct primary addresses
+#' @param primary_postcode_col Column containing the primary postcode
+#' @param primary_address_col Column containing the primary single line address
+#' @param lookup_df Dataframe of distinct lookup addresses
+#' @param lookup_postcode_col Column containing the lookup postcode
+#' @param lookup_address_col Column containing the lookup single line address
 #'
 #' @examples
 #' @export
