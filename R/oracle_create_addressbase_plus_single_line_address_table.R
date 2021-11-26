@@ -43,9 +43,8 @@ oracle_create_addressbase_single_line_address_table <- function(
     addressMatchR::tidy_single_line_address(col = GEO_SINGLE_LINE_ADDRESS)
 
   # For rows where DPA single line address is NA we have GEO only
-  df <- df %>%
+  only_geo_single_line_address_df <- df %>%
     dplyr::filter(is.na(DPA_SINGLE_LINE_ADDRESS)) %>%
-    dplyr::filter(DPA_SINGLE_LINE_ADDRESS == GEO_SINGLE_LINE_ADDRESS) %>%
     dplyr::mutate(ADDRESS_TYPE = "GEO ONLY") %>%
     dplyr::select(
       RELEASE_DATE,
@@ -53,11 +52,11 @@ oracle_create_addressbase_single_line_address_table <- function(
       CLASS,
       ADDRESS_TYPE,
       POSTCODE,
-      SINGLE_LINE_ADDRESS = DPA_SINGLE_LINE_ADDRESS
+      SINGLE_LINE_ADDRESS = GEO_SINGLE_LINE_ADDRESS
     )
 
   # For rows that have DPA == GEO single line address we group these as BOTH
-  addressbase_plus_both_address_type_db <- addressbase_plus_db %>%
+  equal_single_line_address_df <- df %>%
     dplyr::filter(DPA_SINGLE_LINE_ADDRESS == GEO_SINGLE_LINE_ADDRESS) %>%
     dplyr::mutate(ADDRESS_TYPE = "BOTH") %>%
     dplyr::select(
@@ -69,10 +68,9 @@ oracle_create_addressbase_single_line_address_table <- function(
       SINGLE_LINE_ADDRESS = DPA_SINGLE_LINE_ADDRESS
     )
 
-  # Calculate a CMD (combined) single line address
-  # and make the table long
-  addressbase_plus_diff_address_type_db <- addressbase_plus_db %>%
-    filter(DPA_SINGLE_LINE_ADDRESS != GEO_SINGLE_LINE_ADDRESS) %>%
+  # Calculate a combined single line address and make the table long
+  different_single_line_address_df <- df %>%
+    dplyr::filter(DPA_SINGLE_LINE_ADDRESS != GEO_SINGLE_LINE_ADDRESS) %>%
     nhsbsaR::oracle_merge_strings(
       first_col = "DPA_SINGLE_LINE_ADDRESS",
       second_col = "GEO_SINGLE_LINE_ADDRESS",
@@ -81,14 +79,18 @@ oracle_create_addressbase_single_line_address_table <- function(
     tidyr::pivot_longer(
       cols = dplyr::ends_with("_SINGLE_LINE_ADDRESS"),
       names_to = "ADDRESS_TYPE",
-      names_sep = "_",
       values_to = "SINGLE_LINE_ADDRESS"
     )
 
   # Stack the three tables together again
-  addressbase_plus_db <-
-    addressbase_plus_geo_only_address_type_db %>%
-    union(y = addressbase_plus_both_address_type_db) %>%
-    union(y = addressbase_plus_diff_address_type_db)
+  df <-
+    only_geo_single_line_address_df %>%
+    dplyr::union_all(y = equal_single_line_address_df) %>%
+    dplyr::union_all(y = different_single_line_address_df)
+
+  # Write the table back to the DB
+  df %>%
+    nhsbsaR::oracle_create_table(table_name = table_name)
+
 
 }
