@@ -79,6 +79,7 @@ oracle_create_addressbase_single_line_address_table <- function(
     tidyr::pivot_longer(
       cols = dplyr::ends_with("_SINGLE_LINE_ADDRESS"),
       names_to = "ADDRESS_TYPE",
+      names_pattern = "(.*)_SINGLE_LINE_ADDRESS",
       values_to = "SINGLE_LINE_ADDRESS"
     )
 
