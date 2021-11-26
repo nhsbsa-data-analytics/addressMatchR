@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' @export
-upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
+oracle_create_addressbase_plus_table <- function(con, path, pattern = NULL) {
 
   # Get a list of the data files
   data_files <- list.files(path = path, pattern = pattern, full.names = TRUE)
