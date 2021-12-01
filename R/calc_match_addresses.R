@@ -88,13 +88,11 @@ calc_match_addresses <- function(
   # Tokenise non exact match addresses
   non_exact_match_df <- non_exact_match_df %>%
     nhsbsaR::oracle_unnest_tokens(col = primary_address_col, drop = FALSE) %>%
-    dplyr::select(-TOKEN_NUMBER) %>%
-    dplyr::distinct() %>%
     dplyr::mutate(TOKEN_TYPE = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), "D", "C"))
 
   # Add the theoretical max score for each non exact match address
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(-c(TOKEN, TOKEN_TYPE)) %>%
+    dplyr::group_by(-c(TOKEN_NUMBER, TOKEN, TOKEN_TYPE)) %>%
     dplyr::mutate(MAX_SCORE = sum(ifelse(TOKEN_TYPE == "D", 4, 1))) %>%
     dplyr::ungroup()
 
@@ -173,7 +171,9 @@ calc_match_addresses <- function(
 
   # Sum the score for each single line address combination
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(dplyr::across(-c(TOKEN_PRIMARY, TOKEN_TYPE, SCORE))) %>%
+    dplyr::group_by(
+      dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_TYPE, SCORE))
+    ) %>%
     dplyr::summarise(SCORE = sum(SCORE)) %>%
     dplyr::ungroup()
 
