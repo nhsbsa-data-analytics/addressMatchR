@@ -160,18 +160,22 @@ calc_match_addresses <- function(
 
   # Take the top scoring lookup address for each primary address (if there are
   # draws then keep all of them)
+
+  # Can't find another way to do this other than define the grouping vars
+  # upfront (using dplyr::group_by() + dplyr::across() + dplyr::any_of() doesn't
+  # work???) and using in a dplyr::group_by_at()...
+  grouping_vars <- intersect(
+    x = colnames(non_exact_match_df),
+    y = c(
+      primary_postcode_col,
+      primary_address_col,
+      paste0(primary_address_col, "_PRIMARY")
+    )
+  )
+
+  # Then use the grouping vars in the dplyr pipe
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(
-      dplyr::across(
-        dplyr::any_of(
-          c(
-            primary_postcode_col,
-            primary_address_col,
-            paste0(primary_address_col, "_PRIMARY")
-          )
-        )
-      )
-    ) %>%
+    dplyr::group_by_at(grouping_vars) %>% # see ^^
     dplyr::slice_max(order_by = SCORE) %>%
     dplyr::ungroup()
 
