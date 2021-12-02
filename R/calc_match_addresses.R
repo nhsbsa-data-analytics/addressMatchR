@@ -109,11 +109,11 @@ calc_match_addresses <- function(
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(
       # Tokens share the same first letter
-      substr(TOKEN_LOOKUP, 1, 1) == substr(TOKEN_PRIMARY, 1, 1) |
+      SUBSTR(TOKEN_LOOKUP, 1, 1) == SUBSTR(TOKEN_PRIMARY, 1, 1) |
         # Tokens share same second letter
-        substr(TOKEN_LOOKUP, 2, 1) == substr(TOKEN_PRIMARY, 2, 1) |
+        SUBSTR(TOKEN_LOOKUP, 2, 1) == SUBSTR(TOKEN_PRIMARY, 2, 1) |
         # Tokens share same last letter
-        substr(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == substr(TOKEN_PRIMARY, LENGTH(TOKEN_PRIMARY), 1) |
+        SUBSTR(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == SUBSTR(TOKEN_PRIMARY, LENGTH(TOKEN_PRIMARY), 1) |
         # One token is a substring of the other
         INSTR(TOKEN_LOOKUP, TOKEN_PRIMARY) > 1 |
         INSTR(TOKEN_PRIMARY, TOKEN_LOOKUP) > 1
