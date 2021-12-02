@@ -53,34 +53,10 @@ calc_match_addresses <- function(
   non_exact_match_df <- primary_df %>%
     dplyr::anti_join(exact_match_df)
 
-  # Get the intersection of postcodes in both datasets
-  postcodes_in_both_df <-
-    dplyr::inner_join(
-      x = non_exact_match_df %>%
-        dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
-      y = lookup_df %>%
-        dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
-      copy = TRUE
-    )
-
-  # Filter lookup dataset to postcodes in both datasets
-  lookup_df <- lookup_df %>%
-    dplyr::inner_join(
-      y = postcodes_in_both_df,
-      copy = TRUE
-    )
-
-  # Filter non exact matches to postcodes in both datasets
+  # Filter non exact matches to postcodes in the lookup
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
-      y = postcodes_in_both_df,
-      copy = TRUE
-    )
-
-  # Filter lookup dataset to postcodes in non exact matches
-  lookup_df <- lookup_df %>%
-    dplyr::inner_join(
-      y = non_exact_match_df %>%
+      y = lookup_df %>%
         dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
       copy = TRUE
     )
@@ -92,7 +68,7 @@ calc_match_addresses <- function(
 
   # Add the theoretical max score for each non exact match address
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(-c(TOKEN_NUMBER, TOKEN, TOKEN_TYPE)) %>%
+    dplyr::group_by(across(-c(TOKEN_NUMBER, TOKEN, TOKEN_TYPE))) %>%
     dplyr::mutate(MAX_SCORE = sum(ifelse(TOKEN_TYPE == "D", 4, 1))) %>%
     dplyr::ungroup()
 
@@ -137,7 +113,7 @@ calc_match_addresses <- function(
         # Tokens share same second letter
         substr(TOKEN_LOOKUP, 2, 1) == substr(TOKEN_PRIMARY, 2, 1) |
         # Tokens share same last letter
-        substr(TOKEN_LOOKUP, nchar(LOOKUP_ADDRESS), 1) == substr(TOKEN_PRIMARY, nchar(TOKEN_PRIMARY), 1) |
+        substr(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == substr(TOKEN_PRIMARY, LENGTH(TOKEN_PRIMARY), 1) |
         # One token is a substring of the other
         INSTR(TOKEN_LOOKUP, TOKEN_PRIMARY) > 1 |
         INSTR(TOKEN_PRIMARY, TOKEN_LOOKUP) > 1
@@ -158,7 +134,7 @@ calc_match_addresses <- function(
     y = non_exact_match_jw_match_df
   )
 
-  # If the token is a digit then multiply the score by 4
+  # Multiply the score by the token weight
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::mutate(SCORE = ifelse(TOKEN_TYPE == "D", SCORE * 4, SCORE))
 
@@ -189,7 +165,7 @@ calc_match_addresses <- function(
       dplyr::across(
         dplyr::any_of(
           c(
-            "POSTCODE",
+            primary_postcode_col,
             primary_address_col,
             paste0(primary_address_col, "_PRIMARY")
           )
