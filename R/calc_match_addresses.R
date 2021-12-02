@@ -64,12 +64,12 @@ calc_match_addresses <- function(
   # Tokenise non exact match addresses
   non_exact_match_df <- non_exact_match_df %>%
     nhsbsaR::oracle_unnest_tokens(col = primary_address_col, drop = FALSE) %>%
-    dplyr::mutate(TOKEN_TYPE = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), "D", "C"))
+    dplyr::mutate(TOKEN_WEIGHT = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), 4, 1))
 
   # Add the theoretical max score for each non exact match address
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(across(-c(TOKEN_NUMBER, TOKEN, TOKEN_TYPE))) %>%
-    dplyr::mutate(MAX_SCORE = sum(ifelse(TOKEN_TYPE == "D", 4, 1))) %>%
+    dplyr::group_by(across(-c(TOKEN_NUMBER, TOKEN, TOKEN_WEIGHT))) %>%
+    dplyr::mutate(MAX_SCORE = sum(TOKEN_WEIGHT)) %>%
     dplyr::ungroup()
 
   # Tokenise lookup addresses
@@ -77,14 +77,14 @@ calc_match_addresses <- function(
     nhsbsaR::oracle_unnest_tokens(col = lookup_address_col, drop = FALSE) %>%
     dplyr::select(-TOKEN_NUMBER) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(TOKEN_TYPE = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), "D", "C"))
+    dplyr::mutate(TOKEN_WEIGHT = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), 4, 1))
 
   # We want to minimise the amount of jarrow winkler calculations we do. So first
   # do the exact token level matches
   non_exact_match_exact_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
       y = lookup_df,
-      by = c(primary_postcode_col, "TOKEN_TYPE", "TOKEN"),
+      by = c(primary_postcode_col, "TOKEN_WEIGHT", "TOKEN"),
       suffix = c("_PRIMARY", "_LOOKUP"),
       copy = TRUE
     ) %>%
@@ -96,12 +96,12 @@ calc_match_addresses <- function(
   non_exact_match_jw_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
       y = lookup_df,
-      by = c(primary_postcode_col, "TOKEN_TYPE"),
+      by = c(primary_postcode_col, "TOKEN_WEIGHT"),
       suffix = c("_PRIMARY", "_LOOKUP"),
       copy = TRUE
     ) %>%
     dplyr::filter(
-      TOKEN_TYPE == "C",
+      TOKEN_WEIGHT == 1,
       TOKEN_PRIMARY != TOKEN_LOOKUP
     )
 
@@ -134,9 +134,9 @@ calc_match_addresses <- function(
     y = non_exact_match_jw_match_df
   )
 
-  # If the token is a digit then multiply the score by 4
+  # Multiply the score by the token weight
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::mutate(SCORE = ifelse(TOKEN_TYPE == "D", SCORE * 4, SCORE))
+    dplyr::mutate(SCORE = SCORE * TOKEN_WEIGHT)
 
   # Get the max score for each primary token in the primary address from each
   # lookup address
@@ -148,7 +148,7 @@ calc_match_addresses <- function(
   # Sum the score for each single line address combination
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(
-      dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_TYPE, SCORE))
+      dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_WEIGHT, SCORE))
     ) %>%
     dplyr::summarise(SCORE = sum(SCORE)) %>%
     dplyr::ungroup()
