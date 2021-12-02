@@ -53,34 +53,10 @@ calc_match_addresses <- function(
   non_exact_match_df <- primary_df %>%
     dplyr::anti_join(exact_match_df)
 
-  # Get the intersection of postcodes in both datasets
-  postcodes_in_both_df <-
-    dplyr::inner_join(
-      x = non_exact_match_df %>%
-        dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
-      y = lookup_df %>%
-        dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
-      copy = TRUE
-    )
-
-  # Filter lookup dataset to postcodes in both datasets
-  lookup_df <- lookup_df %>%
-    dplyr::inner_join(
-      y = postcodes_in_both_df,
-      copy = TRUE
-    )
-
-  # Filter non exact matches to postcodes in both datasets
+  # Filter non exact matches to postcodes in the lookup
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
-      y = postcodes_in_both_df,
-      copy = TRUE
-    )
-
-  # Filter lookup dataset to postcodes in non exact matches
-  lookup_df <- lookup_df %>%
-    dplyr::inner_join(
-      y = non_exact_match_df %>%
+      y = lookup_df %>%
         dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
       copy = TRUE
     )
@@ -88,12 +64,12 @@ calc_match_addresses <- function(
   # Tokenise non exact match addresses
   non_exact_match_df <- non_exact_match_df %>%
     nhsbsaR::oracle_unnest_tokens(col = primary_address_col, drop = FALSE) %>%
-    dplyr::mutate(TOKEN_TYPE = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), "D", "C"))
+    dplyr::mutate(TOKEN_WEIGHT = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), 4, 1))
 
   # Add the theoretical max score for each non exact match address
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(-c(TOKEN_NUMBER, TOKEN, TOKEN_TYPE)) %>%
-    dplyr::mutate(MAX_SCORE = sum(ifelse(TOKEN_TYPE == "D", 4, 1))) %>%
+    dplyr::group_by(across(-c(TOKEN_NUMBER, TOKEN, TOKEN_WEIGHT))) %>%
+    dplyr::mutate(MAX_SCORE = sum(TOKEN_WEIGHT, na.rm = TRUE)) %>%
     dplyr::ungroup()
 
   # Tokenise lookup addresses
@@ -101,14 +77,14 @@ calc_match_addresses <- function(
     nhsbsaR::oracle_unnest_tokens(col = lookup_address_col, drop = FALSE) %>%
     dplyr::select(-TOKEN_NUMBER) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(TOKEN_TYPE = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), "D", "C"))
+    dplyr::mutate(TOKEN_WEIGHT = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), 4, 1))
 
   # We want to minimise the amount of jarrow winkler calculations we do. So first
   # do the exact token level matches
   non_exact_match_exact_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
       y = lookup_df,
-      by = c(primary_postcode_col, "TOKEN_TYPE", "TOKEN"),
+      by = c(primary_postcode_col, "TOKEN_WEIGHT", "TOKEN"),
       suffix = c("_PRIMARY", "_LOOKUP"),
       copy = TRUE
     ) %>%
@@ -120,12 +96,12 @@ calc_match_addresses <- function(
   non_exact_match_jw_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
       y = lookup_df,
-      by = c(primary_postcode_col, "TOKEN_TYPE"),
+      by = c(primary_postcode_col, "TOKEN_WEIGHT"),
       suffix = c("_PRIMARY", "_LOOKUP"),
       copy = TRUE
     ) %>%
     dplyr::filter(
-      TOKEN_TYPE == "C",
+      TOKEN_WEIGHT == 1,
       TOKEN_PRIMARY != TOKEN_LOOKUP
     )
 
@@ -133,11 +109,11 @@ calc_match_addresses <- function(
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(
       # Tokens share the same first letter
-      substr(TOKEN_LOOKUP, 1, 1) == substr(TOKEN_PRIMARY, 1, 1) |
+      SUBSTR(TOKEN_LOOKUP, 1, 1) == SUBSTR(TOKEN_PRIMARY, 1, 1) |
         # Tokens share same second letter
-        substr(TOKEN_LOOKUP, 2, 1) == substr(TOKEN_PRIMARY, 2, 1) |
+        SUBSTR(TOKEN_LOOKUP, 2, 1) == SUBSTR(TOKEN_PRIMARY, 2, 1) |
         # Tokens share same last letter
-        substr(TOKEN_LOOKUP, nchar(LOOKUP_ADDRESS), 1) == substr(TOKEN_PRIMARY, nchar(TOKEN_PRIMARY), 1) |
+        SUBSTR(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == SUBSTR(TOKEN_PRIMARY, LENGTH(TOKEN_PRIMARY), 1) |
         # One token is a substring of the other
         INSTR(TOKEN_LOOKUP, TOKEN_PRIMARY) > 1 |
         INSTR(TOKEN_PRIMARY, TOKEN_LOOKUP) > 1
@@ -158,23 +134,23 @@ calc_match_addresses <- function(
     y = non_exact_match_jw_match_df
   )
 
-  # If the token is a digit then multiply the score by 4
+  # Multiply the score by the token weight
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::mutate(SCORE = ifelse(TOKEN_TYPE == "D", SCORE * 4, SCORE))
+    dplyr::mutate(SCORE = SCORE * TOKEN_WEIGHT)
 
   # Get the max score for each primary token in the primary address from each
   # lookup address
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(dplyr::across(-c(TOKEN_LOOKUP, SCORE))) %>%
-    dplyr::summarise(SCORE = max(SCORE)) %>%
+    dplyr::summarise(SCORE = max(SCORE, na.rm = TRUE)) %>%
     dplyr::ungroup()
 
   # Sum the score for each single line address combination
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(
-      dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_TYPE, SCORE))
+      dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_WEIGHT, SCORE))
     ) %>%
-    dplyr::summarise(SCORE = sum(SCORE)) %>%
+    dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
     dplyr::ungroup()
 
   # Normalise the score
@@ -184,18 +160,22 @@ calc_match_addresses <- function(
 
   # Take the top scoring lookup address for each primary address (if there are
   # draws then keep all of them)
+
+  # Can't find another way to do this other than define the grouping vars
+  # upfront (using dplyr::group_by() + dplyr::across() + dplyr::any_of() doesn't
+  # work???) and using in a dplyr::group_by_at()...
+  grouping_vars <- intersect(
+    x = colnames(non_exact_match_df),
+    y = c(
+      primary_postcode_col,
+      primary_address_col,
+      paste0(primary_address_col, "_PRIMARY")
+    )
+  )
+
+  # Then use the grouping vars in the dplyr pipe
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by(
-      dplyr::across(
-        dplyr::any_of(
-          c(
-            "POSTCODE",
-            primary_address_col,
-            paste0(primary_address_col, "_PRIMARY")
-          )
-        )
-      )
-    ) %>%
+    dplyr::group_by_at(grouping_vars) %>% # see ^^
     dplyr::slice_max(order_by = SCORE) %>%
     dplyr::ungroup()
 
