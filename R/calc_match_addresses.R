@@ -134,7 +134,7 @@ calc_match_addresses <- function(
     y = non_exact_match_jw_match_df
   )
 
-  # Multiply the score by the token weight
+  # If the token is a digit then multiply the score by 4
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::mutate(SCORE = ifelse(TOKEN_TYPE == "D", SCORE * 4, SCORE))
 
