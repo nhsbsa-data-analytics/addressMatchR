@@ -69,7 +69,7 @@ calc_match_addresses <- function(
   # Add the theoretical max score for each non exact match address
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(across(-c(TOKEN_NUMBER, TOKEN, TOKEN_WEIGHT))) %>%
-    dplyr::mutate(MAX_SCORE = sum(TOKEN_WEIGHT)) %>%
+    dplyr::mutate(MAX_SCORE = sum(TOKEN_WEIGHT, na.rm = TRUE)) %>%
     dplyr::ungroup()
 
   # Tokenise lookup addresses
@@ -142,7 +142,7 @@ calc_match_addresses <- function(
   # lookup address
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(dplyr::across(-c(TOKEN_LOOKUP, SCORE))) %>%
-    dplyr::summarise(SCORE = max(SCORE)) %>%
+    dplyr::summarise(SCORE = max(SCORE, na.rm = TRUE)) %>%
     dplyr::ungroup()
 
   # Sum the score for each single line address combination
@@ -150,7 +150,7 @@ calc_match_addresses <- function(
     dplyr::group_by(
       dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_WEIGHT, SCORE))
     ) %>%
-    dplyr::summarise(SCORE = sum(SCORE)) %>%
+    dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
     dplyr::ungroup()
 
   # Normalise the score
