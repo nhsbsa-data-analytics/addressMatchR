@@ -44,14 +44,14 @@ calc_match_addresses <- function(
         # Mock a join address column on the lookup dataframe
         dplyr::mutate(JOIN_ADDRESS = !!dplyr::sym(lookup_address_col)),
       by = c(primary_postcode_col, "JOIN_ADDRESS"),
-      suffix = c("_PRIMARY", "_LOOKUP"),
+      suffix = c("", "_LOOKUP"),
       copy = TRUE
     ) %>%
     dplyr::select(-JOIN_ADDRESS)
 
   # Now get the rows that haven't already been matched
   non_exact_match_df <- primary_df %>%
-    dplyr::anti_join(exact_match_df)
+    dplyr::anti_join(y = exact_match_df)
 
   # Filter non exact matches to postcodes in the lookup
   non_exact_match_df <- non_exact_match_df %>%
