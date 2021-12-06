@@ -44,14 +44,14 @@ calc_match_addresses <- function(
         # Mock a join address column on the lookup dataframe
         dplyr::mutate(JOIN_ADDRESS = !!dplyr::sym(lookup_address_col)),
       by = c(primary_postcode_col, "JOIN_ADDRESS"),
-      suffix = c("_PRIMARY", "_LOOKUP"),
+      suffix = c("", "_LOOKUP"),
       copy = TRUE
     ) %>%
     dplyr::select(-JOIN_ADDRESS)
 
   # Now get the rows that haven't already been matched
   non_exact_match_df <- primary_df %>%
-    dplyr::anti_join(exact_match_df)
+    dplyr::anti_join(y = exact_match_df)
 
   # Filter non exact matches to postcodes in the lookup
   non_exact_match_df <- non_exact_match_df %>%
@@ -79,55 +79,54 @@ calc_match_addresses <- function(
     dplyr::distinct() %>%
     dplyr::mutate(TOKEN_WEIGHT = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), 4, 1))
 
-  # We want to minimise the amount of jarrow winkler calculations we do. So first
+  # We want to minimise the amount of Jaro–Winkler calculations we do. So first
   # do the exact token level matches
   non_exact_match_exact_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
       y = lookup_df,
       by = c(primary_postcode_col, "TOKEN_WEIGHT", "TOKEN"),
-      suffix = c("_PRIMARY", "_LOOKUP"),
+      suffix = c("", "_LOOKUP"),
       copy = TRUE
     ) %>%
-    dplyr::rename(TOKEN_PRIMARY = TOKEN) %>%
-    dplyr::mutate(TOKEN_LOOKUP = TOKEN_PRIMARY)
+    dplyr::mutate(TOKEN_LOOKUP = TOKEN)
 
-  # Now get the remaining candidates to consider for jarrow winkler matching
+  # Now get the remaining candidates to consider for Jaro–Winkler matching
   # (character token types that aren't an exact match)
   non_exact_match_jw_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
       y = lookup_df,
       by = c(primary_postcode_col, "TOKEN_WEIGHT"),
-      suffix = c("_PRIMARY", "_LOOKUP"),
+      suffix = c("", "_LOOKUP"),
       copy = TRUE
     ) %>%
     dplyr::filter(
       TOKEN_WEIGHT == 1,
-      TOKEN_PRIMARY != TOKEN_LOOKUP
+      TOKEN != TOKEN_LOOKUP
     )
 
   # We can also apply some other filters
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(
       # Tokens share the same first letter
-      SUBSTR(TOKEN_LOOKUP, 1, 1) == SUBSTR(TOKEN_PRIMARY, 1, 1) |
+      SUBSTR(TOKEN_LOOKUP, 1, 1) == SUBSTR(TOKEN, 1, 1) |
         # Tokens share same second letter
-        SUBSTR(TOKEN_LOOKUP, 2, 1) == SUBSTR(TOKEN_PRIMARY, 2, 1) |
+        SUBSTR(TOKEN_LOOKUP, 2, 1) == SUBSTR(TOKEN, 2, 1) |
         # Tokens share same last letter
-        SUBSTR(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == SUBSTR(TOKEN_PRIMARY, LENGTH(TOKEN_PRIMARY), 1) |
+        SUBSTR(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == SUBSTR(TOKEN, LENGTH(TOKEN), 1) |
         # One token is a substring of the other
-        INSTR(TOKEN_LOOKUP, TOKEN_PRIMARY) > 1 |
-        INSTR(TOKEN_PRIMARY, TOKEN_LOOKUP) > 1
+        INSTR(TOKEN_LOOKUP, TOKEN) > 1 |
+        INSTR(TOKEN, TOKEN_LOOKUP) > 1
     )
 
   # Now calculate the jarrow winkler scores
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
-    dplyr::mutate(SCORE = UTL_MATCH.JARO_WINKLER(TOKEN_PRIMARY, TOKEN_LOOKUP))
+    dplyr::mutate(SCORE = UTL_MATCH.JARO_WINKLER(TOKEN, TOKEN_LOOKUP))
 
   # And filter to scores above 0.8
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(SCORE > 0.8)
 
-  # Now stack the non exact exact and jarrow winkler matches back together
+  # Now stack the non exact exact and Jaro–Winkler matches back together
   non_exact_match_df <- dplyr::union_all(
     x = non_exact_match_exact_match_df %>%
       dplyr::mutate(SCORE = 1),
@@ -148,7 +147,7 @@ calc_match_addresses <- function(
   # Sum the score for each single line address combination
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(
-      dplyr::across(-c(TOKEN_NUMBER, TOKEN_PRIMARY, TOKEN_WEIGHT, SCORE))
+      dplyr::across(-c(TOKEN_NUMBER, TOKEN, TOKEN_WEIGHT, SCORE))
     ) %>%
     dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
     dplyr::ungroup()
@@ -160,22 +159,10 @@ calc_match_addresses <- function(
 
   # Take the top scoring lookup address for each primary address (if there are
   # draws then keep all of them)
-
-  # Can't find another way to do this other than define the grouping vars
-  # upfront (using dplyr::group_by() + dplyr::across() + dplyr::any_of() doesn't
-  # work???) and using in a dplyr::group_by_at()...
-  grouping_vars <- intersect(
-    x = colnames(non_exact_match_df),
-    y = c(
-      primary_postcode_col,
-      primary_address_col,
-      paste0(primary_address_col, "_PRIMARY")
-    )
-  )
-
-  # Then use the grouping vars in the dplyr pipe
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::group_by_at(grouping_vars) %>% # see ^^
+    dplyr::group_by(
+      dplyr::across(c(primary_postcode_col, primary_address_col))
+    ) %>%
     dplyr::slice_max(order_by = SCORE) %>%
     dplyr::ungroup()
 
