@@ -79,7 +79,7 @@ calc_match_addresses <- function(
     dplyr::distinct() %>%
     dplyr::mutate(TOKEN_WEIGHT = ifelse(REGEXP_LIKE(TOKEN, "[0-9]"), 4, 1))
 
-  # We want to minimise the amount of jarrow winkler calculations we do. So first
+  # We want to minimise the amount of Jaro–Winkler calculations we do. So first
   # do the exact token level matches
   non_exact_match_exact_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
@@ -91,7 +91,7 @@ calc_match_addresses <- function(
     dplyr::rename(TOKEN_PRIMARY = TOKEN) %>%
     dplyr::mutate(TOKEN_LOOKUP = TOKEN_PRIMARY)
 
-  # Now get the remaining candidates to consider for jarrow winkler matching
+  # Now get the remaining candidates to consider for Jaro–Winkler matching
   # (character token types that aren't an exact match)
   non_exact_match_jw_match_df <- non_exact_match_df %>%
     dplyr::inner_join(
@@ -127,7 +127,7 @@ calc_match_addresses <- function(
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(SCORE > 0.8)
 
-  # Now stack the non exact exact and jarrow winkler matches back together
+  # Now stack the non exact exact and Jaro–Winkler matches back together
   non_exact_match_df <- dplyr::union_all(
     x = non_exact_match_exact_match_df %>%
       dplyr::mutate(SCORE = 1),
