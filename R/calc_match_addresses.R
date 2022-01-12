@@ -28,10 +28,7 @@ calc_match_addresses <- function(
   # Rename the lookup postcode column name to be the same as the primary
   # postcode column name
   lookup_df <- lookup_df %>%
-    dplyr::rename_with(
-      .fn = ~ primary_postcode_col,
-      .cols = !!dplyr::sym(lookup_postcode_col)
-    )
+    dplyr::rename("{primary_postcode_col}" := .data[[lookup_postcode_col]])
 
   # First step is to do the exact matches. We mock join address column here so
   # that we can do the join easily.
@@ -39,10 +36,10 @@ calc_match_addresses <- function(
     dplyr::inner_join(
       x = primary_df %>%
         # Mock a join address column on the primary dataframe
-        dplyr::mutate(JOIN_ADDRESS = !!dplyr::sym(primary_address_col)),
+        dplyr::mutate(JOIN_ADDRESS = .data[[primary_address_col]]),
       y = lookup_df %>%
         # Mock a join address column on the lookup dataframe
-        dplyr::mutate(JOIN_ADDRESS = !!dplyr::sym(lookup_address_col)),
+        dplyr::mutate(JOIN_ADDRESS = .data[[lookup_address_col]]),
       by = c(primary_postcode_col, "JOIN_ADDRESS"),
       suffix = c("", "_LOOKUP"),
       copy = TRUE
@@ -51,13 +48,17 @@ calc_match_addresses <- function(
 
   # Now get the rows that haven't already been matched
   non_exact_match_df <- primary_df %>%
-    dplyr::anti_join(y = exact_match_df)
+    dplyr::anti_join(
+      y = exact_match_df,
+      na_matches = "na",
+      copy = TRUE
+    )
 
   # Filter non exact matches to postcodes in the lookup
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::inner_join(
+    dplyr::semi_join(
       y = lookup_df %>%
-        dplyr::distinct(!!dplyr::sym(primary_postcode_col)),
+        dplyr::select(.data[[primary_postcode_col]]),
       copy = TRUE
     )
 
