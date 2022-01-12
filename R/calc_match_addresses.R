@@ -162,7 +162,7 @@ calc_match_addresses <- function(
   # draws then keep all of them)
   non_exact_match_df <- non_exact_match_df %>%
     dplyr::group_by(
-      !!!dplyr::syms(c(primary_postcode_col, primary_address_col))
+      dplyr::all_of(c(primary_postcode_col, primary_address_col))
     ) %>%
     dplyr::slice_max(order_by = SCORE) %>%
     dplyr::ungroup()
