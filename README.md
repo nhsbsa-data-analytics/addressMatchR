@@ -1,5 +1,5 @@
 # addressMatchR
-Helper package for matching addresses with an integration to Ordinance Survey API.
+Helper package for matching addresses with an integration to Ordnance Survey API.
 
 
 ```
