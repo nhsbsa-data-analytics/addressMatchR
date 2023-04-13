@@ -14,6 +14,3 @@ tidy_postcode(df, col)
 \description{
 Tidy a postcode so it is ready for joining.
 }
-\examples{
-
-}
