@@ -21,6 +21,11 @@ Authors@R:
 			  family = "Ivison",
 			  role = "ctb",
 			  email = "adam.ivison@nhs.net"
+			  ),
+	   person(given = "Mark",
+			  family = "McPherson",
+			  role = "ctb",
+			  email = "mark.mcpherson@nhsbsa.nhs.uk"
 			  )
 	  )
 Description: Helper package for matching care home address using AddressBase Plus. 
@@ -43,7 +48,6 @@ Imports:
     rlang,
     stringi,
     tibble,
-    tidyr,
     utils
 Suggests: 
     rmarkdown,

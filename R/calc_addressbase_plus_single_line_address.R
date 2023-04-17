@@ -16,22 +16,21 @@ calc_addressbase_plus_dpa_single_line_address <- function(
 
   # Create the single line address
   df <- df %>%
-    tidyr::unite(
+    unite.tbl(
       .data$DPA_SINGLE_LINE_ADDRESS,
-      c(
-        "DEPARTMENT_NAME",
-        "RM_ORGANISATION_NAME",
-        "SUB_BUILDING_NAME",
-        "BUILDING_NAME",
-        "BUILDING_NUMBER",
-        "PO_BOX_NUMBER",
-        "DEP_THOROUGHFARE",
-        "THOROUGHFARE",
-        "DOU_DEP_LOCALITY",
-        "DEP_LOCALITY",
-        "POST_TOWN"
-      ),
-      sep = ", ",
+      .data$DEPARTMENT_NAME,
+      .data$RM_ORGANISATION_NAME,
+      .data$SUB_BUILDING_NAME,
+      .data$BUILDING_NAME,
+      .data$BUILDING_NUMBER,
+      .data$PO_BOX_NUMBER,
+      .data$DEP_THOROUGHFARE,
+      .data$THOROUGHFARE,
+      .data$DOU_DEP_LOCALITY,
+      .data$DEP_LOCALITY,
+      .data$POST_TOWN,
+      sep = " ",
+      remove = FALSE,
       na.rm = TRUE
     )
 
@@ -40,7 +39,10 @@ calc_addressbase_plus_dpa_single_line_address <- function(
 
     df <- df %>%
       dplyr::mutate(
-        DPA_SINGLE_LINE_ADDRESS = paste0(.data$DPA_SINGLE_LINE_ADDRESS, .data$POSTCODE)
+        DPA_SINGLE_LINE_ADDRESS = paste0(
+          .data$DPA_SINGLE_LINE_ADDRESS,
+          .data$POSTCODE
+        )
       )
 
   }
