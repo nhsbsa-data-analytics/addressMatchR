@@ -38,11 +38,10 @@ calc_addressbase_plus_dpa_single_line_address <- function(
   if (include_postcode) {
 
     df <- df %>%
-      dplyr::mutate(
-        DPA_SINGLE_LINE_ADDRESS = paste0(
-          .data$DPA_SINGLE_LINE_ADDRESS,
-          .data$POSTCODE
-        )
+      unite.tbl(
+        .data$DPA_SINGLE_LINE_ADDRESS,
+        .data$DPA_SINGLE_LINE_ADDRESS,
+        .data$POSTCODE
       )
 
   }
@@ -69,129 +68,46 @@ calc_addressbase_plus_geo_single_line_address <- function(
   # Create the single line address
   df <- df %>%
     dplyr::mutate(
-      GEO_SINGLE_LINE_ADDRESS = paste0(
-        ifelse(
-          test = !is.null(.data$LA_ORGANISATION),
-          yes = paste0(.data$LA_ORGANISATION, ", "),
-          no = ""
-        ),
-        ifelse(
-          test = !is.null(.data$SAO_TEXT),
-          yes = paste0(.data$SAO_TEXT, ", "),
-          no = ""
-        ),
-        ifelse(
-          test = !is.null(.data$SAO_START_NUMBER) &
-            is.null(.data$SAO_START_SUFFIX) &
-            is.null(.data$SAO_END_NUMBER),
-          yes = paste0(.data$SAO_START_NUMBER, ", "),
-          no = ifelse(
-            test = is.null(.data$SAO_START_NUMBER),
-            yes = "",
-            no = as.character(.data$SAO_START_NUMBER)
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$SAO_START_SUFFIX) & is.null(.data$SAO_END_NUMBER),
-          yes = paste0(.data$SAO_START_SUFFIX, ", "),
-          no = ifelse(
-            test = !is.null(.data$SAO_START_SUFFIX) & !is.null(.data$SAO_END_NUMBER),
-            yes = .data$SAO_START_SUFFIX,
-            no = ""
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$SAO_END_SUFFIX) & !is.null(.data$SAO_END_NUMBER),
-          yes = "-",
-          no = ifelse(
-            test = !is.null(.data$SAO_START_NUMBER) & !is.null(.data$SAO_END_NUMBER),
-            yes = "-",
-            no = ""
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$SAO_END_NUMBER) & is.null(.data$SAO_END_SUFFIX),
-          yes = paste0(.data$SAO_END_NUMBER, ", "),
-          no = ifelse(
-            test = is.null(.data$SAO_END_NUMBER),
-            yes = "",
-            no = as.character(.data$SAO_END_NUMBER)
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$PAO_TEXT),
-          yes = paste0(.data$PAO_TEXT, ", "),
-          no = ""
-        ),
-        ifelse(
-          test = !is.null(.data$PAO_START_NUMBER) &
-            is.null(.data$PAO_START_SUFFIX) &
-            is.null(.data$PAO_END_NUMBER),
-          yes = paste0(.data$PAO_START_NUMBER, ", "),
-          no = ifelse(
-            test = is.null(.data$PAO_START_NUMBER),
-            yes = "",
-            no = as.character(.data$PAO_START_NUMBER)
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$PAO_START_SUFFIX) & is.null(.data$PAO_END_NUMBER),
-          yes = paste0(.data$PAO_START_SUFFIX, ", "),
-          no = ifelse(
-            test = !is.null(.data$PAO_START_SUFFIX) & !is.null(.data$PAO_END_NUMBER),
-            yes = .data$PAO_START_SUFFIX,
-            no = ""
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$PAO_END_SUFFIX) & !is.null(.data$PAO_END_NUMBER),
-          yes = "-",
-          no = ifelse(
-            test = !is.null(.data$PAO_START_NUMBER) & !is.null(.data$PAO_END_NUMBER),
-            yes = "-",
-            no = ""
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$PAO_END_NUMBER) & is.null(.data$PAO_END_SUFFIX),
-          yes = paste0(.data$PAO_END_NUMBER, ", "),
-          no = ifelse(
-            test = is.null(.data$PAO_END_NUMBER),
-            yes = "",
-            no = as.character(.data$PAO_END_NUMBER)
-          )
-        ),
-        ifelse(
-          test = !is.null(.data$STREET_DESCRIPTION),
-          yes = paste0(.data$STREET_DESCRIPTION, ", "),
-          no = ""
-        ),
-        ifelse(
-          test = !is.null(.data$LOCALITY),
-          yes = paste0(.data$LOCALITY, ", "),
-          no = ""
-        ),
-        ifelse(
-          test = !is.null(.data$TOWN_NAME),
-          yes = paste0(.data$TOWN_NAME, ", "),
-          no = ""
-        )
+      SAO_DASH = ifelse(
+        (!is.null(.data$SAO_START_NUMBER) | !is.null(.data$SAO_START_SUFFIX)) &
+        (!is.null(.data$SAO_END_NUMBER) | !is.null(.data$SAO_END_SUFFIX))
+      ),
+      PAO_DASH = ifelse(
+        (!is.null(.data$PAO_START_NUMBER) | !is.null(.data$PAO_START_SUFFIX)) &
+          (!is.null(.data$PAO_END_NUMBER) | !is.null(.data$PAO_END_SUFFIX))
       )
+    ) %>%
+    unite.tbl(
+      .data$GEO_SINGLE_LINE_ADDRESS,
+      .data$LA_ORGANISATION,
+      .data$SAO_TEXT,
+      .data$SAO_START_NUMBER,
+      .data$SAO_START_SUFFIX,
+      .data$SAO_DASH,
+      .data$SAO_END_NUMBER,
+      .data$SAO_END_SUFFIX,
+      .data$PAO_TEXT,
+      .data$PAO_START_NUMBER,
+      .data$PAO_START_SUFFIX,
+      .data$PAO_DASH,
+      .data$PAO_END_NUMBER,
+      .data$PAO_END_SUFFIX,
+      .data$STREET_DESCRIPTION,
+      .data$LOCALITY,
+      .data$TOWN_NAME,
+      sep = " ",
+      remove = FALSE,
+      na.rm = TRUE
     )
 
   # Add the postcode if necessary
   if (include_postcode) {
 
     df <- df %>%
-      dplyr::mutate(
-        GEO_SINGLE_LINE_ADDRESS = paste0(
-          .data$GEO_SINGLE_LINE_ADDRESS,
-          ifelse(
-            test = !is.null(.data$POSTCODE_LOCATOR),
-            yes = .data$POSTCODE_LOCATOR,
-            no = ""
-          )
-        )
+      unite.tbl(
+        .data$GEO_SINGLE_LINE_ADDRESS,
+        .data$GEO_SINGLE_LINE_ADDRESS,
+        .data$POSTCODE_LOCATOR
       )
 
   }
