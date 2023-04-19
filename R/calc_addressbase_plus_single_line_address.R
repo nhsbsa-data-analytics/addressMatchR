@@ -17,18 +17,18 @@ calc_addressbase_plus_dpa_single_line_address <- function(
   # Create the single line address
   df <- df %>%
     unite.tbl(
-      .data$DPA_SINGLE_LINE_ADDRESS,
-      .data$DEPARTMENT_NAME,
-      .data$RM_ORGANISATION_NAME,
-      .data$SUB_BUILDING_NAME,
-      .data$BUILDING_NAME,
-      .data$BUILDING_NUMBER,
-      .data$PO_BOX_NUMBER,
-      .data$DEP_THOROUGHFARE,
-      .data$THOROUGHFARE,
-      .data$DOU_DEP_LOCALITY,
-      .data$DEP_LOCALITY,
-      .data$POST_TOWN,
+      DPA_SINGLE_LINE_ADDRESS,
+      DEPARTMENT_NAME,
+      RM_ORGANISATION_NAME,
+      SUB_BUILDING_NAME,
+      BUILDING_NAME,
+      BUILDING_NUMBER,
+      PO_BOX_NUMBER,
+      DEP_THOROUGHFARE,
+      THOROUGHFARE,
+      DOU_DEP_LOCALITY,
+      DEP_LOCALITY,
+      POST_TOWN,
       sep = " ",
       remove = FALSE,
       na.rm = TRUE
@@ -39,9 +39,9 @@ calc_addressbase_plus_dpa_single_line_address <- function(
 
     df <- df %>%
       unite.tbl(
-        .data$DPA_SINGLE_LINE_ADDRESS,
-        .data$DPA_SINGLE_LINE_ADDRESS,
-        .data$POSTCODE
+        DPA_SINGLE_LINE_ADDRESS,
+        DPA_SINGLE_LINE_ADDRESS,
+        POSTCODE
       )
 
   }
@@ -69,36 +69,36 @@ calc_addressbase_plus_geo_single_line_address <- function(
   df <- df %>%
     dplyr::mutate(
       SAO_DASH = ifelse(
-        (!is.null(.data$SAO_START_NUMBER) | !is.null(.data$SAO_START_SUFFIX)) &
-        (!is.null(.data$SAO_END_NUMBER) | !is.null(.data$SAO_END_SUFFIX)),
+        (!is.null(SAO_START_NUMBER) | !is.null(SAO_START_SUFFIX)) &
+        (!is.null(SAO_END_NUMBER) | !is.null(SAO_END_SUFFIX)),
         "-",
         ""
       ),
       PAO_DASH = ifelse(
-        (!is.null(.data$PAO_START_NUMBER) | !is.null(.data$PAO_START_SUFFIX)) &
-          (!is.null(.data$PAO_END_NUMBER) | !is.null(.data$PAO_END_SUFFIX)),
+        (!is.null(PAO_START_NUMBER) | !is.null(PAO_START_SUFFIX)) &
+          (!is.null(PAO_END_NUMBER) | !is.null(PAO_END_SUFFIX)),
         "-",
         ""
       )
     ) %>%
     unite.tbl(
-      .data$GEO_SINGLE_LINE_ADDRESS,
-      .data$LA_ORGANISATION,
-      .data$SAO_TEXT,
-      .data$SAO_START_NUMBER,
-      .data$SAO_START_SUFFIX,
-      .data$SAO_DASH,
-      .data$SAO_END_NUMBER,
-      .data$SAO_END_SUFFIX,
-      .data$PAO_TEXT,
-      .data$PAO_START_NUMBER,
-      .data$PAO_START_SUFFIX,
-      .data$PAO_DASH,
-      .data$PAO_END_NUMBER,
-      .data$PAO_END_SUFFIX,
-      .data$STREET_DESCRIPTION,
-      .data$LOCALITY,
-      .data$TOWN_NAME,
+      GEO_SINGLE_LINE_ADDRESS,
+      LA_ORGANISATION,
+      SAO_TEXT,
+      SAO_START_NUMBER,
+      SAO_START_SUFFIX,
+      SAO_DASH,
+      SAO_END_NUMBER,
+      SAO_END_SUFFIX,
+      PAO_TEXT,
+      PAO_START_NUMBER,
+      PAO_START_SUFFIX,
+      PAO_DASH,
+      PAO_END_NUMBER,
+      PAO_END_SUFFIX,
+      STREET_DESCRIPTION,
+      LOCALITY,
+      TOWN_NAME,
       sep = " ",
       remove = FALSE,
       na.rm = TRUE
@@ -109,9 +109,9 @@ calc_addressbase_plus_geo_single_line_address <- function(
 
     df <- df %>%
       unite.tbl(
-        .data$GEO_SINGLE_LINE_ADDRESS,
-        .data$GEO_SINGLE_LINE_ADDRESS,
-        .data$POSTCODE_LOCATOR
+        GEO_SINGLE_LINE_ADDRESS,
+        GEO_SINGLE_LINE_ADDRESS,
+        POSTCODE_LOCATOR
       )
 
   }
