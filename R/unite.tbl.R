@@ -22,7 +22,7 @@
 #' }
 unite.tbl <- function (data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE)
 {
-  dot_names  <- sapply(substitute(...)[-1], deparse)
+  dot_names  <- sapply(substitute(list(...))[-1], deparse)
 
   shown_cols <- data %>% colnames()
   shown_cols <- `if`(
