@@ -70,11 +70,15 @@ calc_addressbase_plus_geo_single_line_address <- function(
     dplyr::mutate(
       SAO_DASH = ifelse(
         (!is.null(.data$SAO_START_NUMBER) | !is.null(.data$SAO_START_SUFFIX)) &
-        (!is.null(.data$SAO_END_NUMBER) | !is.null(.data$SAO_END_SUFFIX))
+        (!is.null(.data$SAO_END_NUMBER) | !is.null(.data$SAO_END_SUFFIX)),
+        "-",
+        ""
       ),
       PAO_DASH = ifelse(
         (!is.null(.data$PAO_START_NUMBER) | !is.null(.data$PAO_START_SUFFIX)) &
-          (!is.null(.data$PAO_END_NUMBER) | !is.null(.data$PAO_END_SUFFIX))
+          (!is.null(.data$PAO_END_NUMBER) | !is.null(.data$PAO_END_SUFFIX)),
+        "-",
+        ""
       )
     ) %>%
     unite.tbl(
