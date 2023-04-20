@@ -29,7 +29,7 @@ calc_addressbase_plus_dpa_single_line_address <- function(
       DOU_DEP_LOCALITY,
       DEP_LOCALITY,
       POST_TOWN,
-      sep = " ",
+      sep = ", ",
       remove = FALSE,
       na.rm = TRUE
     )
@@ -99,7 +99,7 @@ calc_addressbase_plus_geo_single_line_address <- function(
       STREET_DESCRIPTION,
       LOCALITY,
       TOWN_NAME,
-      sep = " ",
+      sep = ", ",
       remove = FALSE,
       na.rm = TRUE
     )

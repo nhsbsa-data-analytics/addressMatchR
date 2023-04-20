@@ -20,8 +20,7 @@
 #'   sep = " ", remove = FALSE, na.rm = TRUE
 #' )
 #' }
-unite.tbl <- function (data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE)
-{
+unite.tbl <- function (data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE) {
   dot_names  <- sapply(substitute(list(...))[-1], deparse)
 
   shown_cols <- data %>% colnames()
@@ -37,12 +36,12 @@ unite.tbl <- function (data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE)
     paste0(
       paste0(
         "NVL2(",
-        dot_names%>% utils::head(-1), ", ",
-        dot_names%>% utils::head(-1), " || '", sep, "'",
+        dot_names %>% utils::head(-1), ", ",
+        dot_names %>% utils::head(-1), " || '", sep, "'",
         ", '')",
         collapse = " || "
       ),
-      " || NVL(", dot_names%>% utils::tail(1), ", '')"
+      " || NVL(", dot_names %>% utils::tail(1), ", '')"
     ),
     paste0(dot_names, collapse = paste0(" || '", sep, "' || "))
   )
