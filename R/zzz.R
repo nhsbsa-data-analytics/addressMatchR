@@ -40,6 +40,9 @@ if(getRversion() >= "2.15.1") utils::globalVariables(
     "STREET_DESCRIPTION",
     "LOCALITY",
     "TOWN_NAME",
-    "POSTCODE_LOCATOR"
+    "POSTCODE_LOCATOR",
+
+    # Created columns that do not work with .data pronoun
+    "SCORE"
   )
 )
