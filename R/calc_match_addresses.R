@@ -168,7 +168,7 @@ calc_match_addresses <- function(
     dplyr::group_by(
       .data[[primary_postcode_col]], .data[[primary_address_col]]
     ) %>%
-    dplyr::slice_max(order_by = .data$SCORE) %>%
+    dplyr::slice_max(order_by = SCORE) %>%
     dplyr::ungroup()
 
   # Stack the exact and non exact matches together and output
