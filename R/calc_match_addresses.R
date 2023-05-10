@@ -111,16 +111,14 @@ calc_match_addresses <- function(
   non_exact_match_jw_match_df <- non_exact_match_jw_match_df %>%
     dplyr::filter(
       # Tokens share the same first letter
-      SUBSTR(.data$TOKEN_LOOKUP, 1, 1) == SUBSTR(.data$TOKEN, 1, 1) |
+      SUBSTR(TOKEN_LOOKUP, 1, 1) == SUBSTR(TOKEN, 1, 1) |
         # Tokens share same second letter
-        SUBSTR(.data$TOKEN_LOOKUP, 2, 1) == SUBSTR(.data$TOKEN, 2, 1) |
+        SUBSTR(TOKEN_LOOKUP, 2, 1) == SUBSTR(TOKEN, 2, 1) |
         # Tokens share same last letter
-        SUBSTR(.data$TOKEN_LOOKUP, LENGTH(.data$TOKEN_LOOKUP), 1) %in% c(
-          SUBSTR(.data$TOKEN, LENGTH(.data$TOKEN), 1),
-          # One token is a substring of the other
-          INSTR(.data$TOKEN_LOOKUP, .data$TOKEN) > 1,
-          INSTR(.data$TOKEN, .data$TOKEN_LOOKUP) > 1
-        )
+        SUBSTR(TOKEN_LOOKUP, LENGTH(TOKEN_LOOKUP), 1) == SUBSTR(TOKEN, LENGTH(TOKEN), 1) |
+        # One token is a substring of the other
+        INSTR(TOKEN_LOOKUP, TOKEN) > 1 |
+        INSTR(TOKEN, TOKEN_LOOKUP) > 1
     )
 
   # Now calculate the jarrow winkler scores
