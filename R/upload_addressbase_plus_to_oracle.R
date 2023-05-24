@@ -132,7 +132,7 @@ upload_addressbase_plus_to_oracle <- function(con, path, pattern = NULL) {
   for (data_file in data_files) {
 
     # What date are we loading
-    file_name <- tail(x = strsplit(data_file[1], "/")[[1]], n = 1)
+    file_name <- utils::tail(x = strsplit(data_file[1], "/")[[1]], n = 1)
     date <- substr(file_name, 22, 31)
 
     # Read the csv and append date column to front
