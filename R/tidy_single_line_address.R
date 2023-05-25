@@ -44,7 +44,7 @@ tidy_single_line_address <- function(df, col, remove_postcode = FALSE) {
         ),
 
         # Only remove spaces around hyphen if surrounded by numbers
-        {{ col }} := case_when(
+        {{ col }} := dplyr::case_when(
           REGEXP_INSTR({{ col }}, "[0-9] - [0-9]") > 0L ~ REPLACE(" - ", "-", {{ col }}),
           TRUE ~ {{ col }}
         )
@@ -53,7 +53,7 @@ tidy_single_line_address <- function(df, col, remove_postcode = FALSE) {
 
     #Process as a data frame
     df %>%
-      mutate(
+      dplyr::mutate(
         # Address cleaning
         {{ col }} := toupper({{ col }}),
         {{ col }} := gsub(" & ", " AND ", {{ col }}),

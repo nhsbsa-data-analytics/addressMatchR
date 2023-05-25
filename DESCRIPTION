@@ -46,7 +46,7 @@ Imports:
     nhsbsaR,
     readr,
     rlang,
-    stringi,
+    stringr,
     tibble,
     utils
 Suggests: 
