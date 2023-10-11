@@ -72,6 +72,7 @@ calc_match_addresses_df <- function(
         dplyr::group_by(ID) %>%
         dplyr::mutate(
           TOKEN_WEIGHT = dplyr::if_else(grepl("[0-9]", TOKEN) == TRUE, 4, 1),
+          TOKEN_NUMBER = row_number(),
           # Add the theoretical max score for each non exact match address
           MAX_SCORE = sum(TOKEN_WEIGHT, na.rm = TRUE)
         ) %>%
@@ -92,7 +93,7 @@ calc_match_addresses_df <- function(
           )
 
       # Score remaining matches
-      non_exact_match_df = dplyr::inner_join(
+      non_exact_match_df = dplyr::full_join(
         x = non_exact_match_df,
         y = lookup_tokens_df,
         by = c(primary_postcode_col, "TOKEN_WEIGHT"),
@@ -132,6 +133,10 @@ calc_match_addresses_df <- function(
         # Remove tokens with score less than 0.8 then multiple by weight
         dplyr::filter(SCORE > 0.8) %>%
         dplyr::mutate(SCORE = SCORE * TOKEN_WEIGHT) %>%
+        # Max score per token
+        dplyr::group_by(ID, ID_LOOKUP, MAX_SCORE, TOKEN_NUMBER) %>%
+        dplyr::summarise(SCORE = max(SCORE, na.rm = TRUE)) %>%
+        dplyr::ungroup() %>%
         # Sum scores per ID pair & generate score out of maximum score
         dplyr::group_by(ID, ID_LOOKUP, MAX_SCORE) %>%
         dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
