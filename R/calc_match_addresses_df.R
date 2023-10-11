@@ -64,7 +64,6 @@ calc_match_addresses_df <- function(
           by = "ID"
         ) %>%
         tidytext::unnest_tokens(
-          #tbl = .,
           output = "TOKEN",
           input = primary_address_col,
           to_lower = FALSE,
@@ -81,7 +80,6 @@ calc_match_addresses_df <- function(
       # Tokenise lookup addresses
       lookup_tokens_df <- lookup_df %>%
         tidytext::unnest_tokens(
-          #tbl = .,
           output = "TOKEN",
           input = lookup_address_col,
           to_lower = FALSE,
@@ -123,18 +121,20 @@ calc_match_addresses_df <- function(
             # Exact matches
             TOKEN == TOKEN_LOOKUP ~ 1,
             (TOKEN != TOKEN_LOOKUP) & (TOKEN_WEIGHT == 4) ~ 0,
-            TOKEN != TOKEN_LOOKUP ~ stringdist::stringsim(TOKEN, TOKEN_LOOKUP, method = "jw", p = 0.1)
-          )
+            TOKEN != TOKEN_LOOKUP ~ stringdist::stringsim(
+              a = TOKEN,
+              b = TOKEN_LOOKUP,
+              method = "jw",
+              p = 0.1
+              )
+            )
         ) %>%
         # Remove tokens with score less than 0.8 then multiple by weight
         dplyr::filter(SCORE > 0.8) %>%
         dplyr::mutate(SCORE = SCORE * TOKEN_WEIGHT) %>%
-        # Sum scores per ID pair
+        # Sum scores per ID pair & generate score out of maximum score
         dplyr::group_by(ID, ID_LOOKUP, MAX_SCORE) %>%
         dplyr::summarise(SCORE = sum(SCORE, na.rm = TRUE)) %>%
-        dplyr::ungroup() %>%
-        # Generate score out of maximum score
-        dplyr::group_by(ID, ID_LOOKUP) %>%
         dplyr::mutate(SCORE = SCORE / MAX_SCORE) %>%
         dplyr::ungroup() %>%
         dplyr::select(-MAX_SCORE) %>%
@@ -185,6 +185,7 @@ calc_match_addresses_df <- function(
     items = c(
     "The size of the datasets attempting to be matched are too big and the function has failed.",
     "Try looping through groups of postcodes, such as several thousand at a time.",
+    "Also ensure each matching df only contains distinct address-postcode records, to streamline the process.",
     "Although RAM dependent, the function has the ability to match up to tens of thousands of records on each side.",
     "For large-scale matching tasks, please use the database version of this function: addressMatchR::calc_match_addresses()."
     )
