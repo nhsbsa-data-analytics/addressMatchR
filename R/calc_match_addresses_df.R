@@ -67,7 +67,9 @@ calc_match_addresses_df <- function(
           output = "TOKEN",
           input = primary_address_col,
           to_lower = FALSE,
-          drop = FALSE
+          drop = FALSE,
+          token = stringr::str_split,
+          pattern = "\\s"
           ) %>%
         dplyr::group_by(ID) %>%
         dplyr::mutate(
@@ -84,7 +86,9 @@ calc_match_addresses_df <- function(
           output = "TOKEN",
           input = lookup_address_col,
           to_lower = FALSE,
-          drop = FALSE
+          drop = FALSE,
+          token = stringr::str_split,
+          pattern = "\\s"
           ) %>%
         # Only need 1 instance of token per lookup ID
         dplyr::distinct() %>%
