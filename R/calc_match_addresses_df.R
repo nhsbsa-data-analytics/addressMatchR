@@ -29,6 +29,22 @@ calc_match_addresses_df <- function(
   # Disable group by override groups notice
   options(dplyr.summarise.inform = FALSE)
 
+  # Check if there are zero shared postcodes
+  row_count = lookup_df %>%
+    dplyr::rename("{primary_postcode_col}" := .data[[lookup_postcode_col]]) %>%
+    dplyr::inner_join(
+      primary_df,
+      by = primary_postcode_col,
+      relationship = "many-to-many"
+    ) %>%
+    nrow(.)
+
+  # Break if zero shared postcodes
+  if(row_count == 0){
+    message("There are no shared postcodes between the datasets so no matching was possible")
+    return(NULL)
+  }
+
   # Catch error when supplied data is too big
   out = tryCatch(
     {
@@ -177,7 +193,7 @@ calc_match_addresses_df <- function(
           by = "ID"
         ) %>%
         dplyr::left_join(
-          lookup_df %>% select(-all_of(lookup_postcode_col)),
+          lookup_df,
           by = "ID_LOOKUP",
           suffix = c("", "_LOOKUP")
         ) %>%
