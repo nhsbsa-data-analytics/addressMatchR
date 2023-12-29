@@ -120,22 +120,6 @@ calc_match_addresses_df <- function(
         suffix = c("", "_LOOKUP"),
         relationship = "many-to-many"
         ) %>%
-        # Remove unwanted token pairs (with jw score < 0.8)
-        dplyr::filter(
-          # Remove NA tokens
-          !is.na(TOKEN),
-          !is.na(TOKEN_LOOKUP),
-          # Tokens share same first letter
-          substr(TOKEN_LOOKUP, 1, 1) == substr(TOKEN, 1, 1) |
-            # Tokens share same second letter
-            substr(TOKEN_LOOKUP, 2, 2) == substr(TOKEN, 2, 2) |
-            # Tokens share same last letter
-            substr(TOKEN_LOOKUP, nchar(TOKEN_LOOKUP), nchar(TOKEN_LOOKUP)) ==
-            substr(TOKEN, nchar(TOKEN_LOOKUP), nchar(TOKEN_LOOKUP)) |
-            # One token is a substring of the other
-            stringr::str_detect(TOKEN, TOKEN_LOOKUP) == 1 |
-            stringr::str_detect(TOKEN_LOOKUP, TOKEN) == 1
-        ) %>%
         # Score remaining token pairs
         dplyr::mutate(
           SCORE = dplyr::case_when(
