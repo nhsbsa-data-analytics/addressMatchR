@@ -22,6 +22,7 @@ tidy_single_line_address_df <- function(df, col, remove_postcode = FALSE) {
     dplyr::mutate(
       # Address cleaning
       {{ col }} := toupper({{ col }}),
+      {{ col }} := gsub("([A-Za-z])''([A-Za-z])", "\\1\\2", {{ col }}),
       {{ col }} := gsub(" & ", " AND ", {{ col }}),
       {{ col }} := gsub("(\\D)(\\d)", "\\1 \\2", {{ col }}),
       {{ col }} := gsub("(\\d)(\\D)", "\\1 \\2", {{ col }}),
