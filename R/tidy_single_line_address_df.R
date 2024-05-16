@@ -28,10 +28,6 @@ tidy_single_line_address_df <- function(df, col, remove_postcode = FALSE) {
       {{ col }} := gsub("(\\d)(\\D)", "\\1 \\2", {{ col }}),
       {{ col }} := gsub("[,.();:#''\"]", " ", {{ col }}),
       {{ col }} := stringr::str_squish({{ col }}),
-      {{ col }} := ifelse(
-        grepl("[0-9] - [0-9]", {{ col }}) == TRUE,
-        gsub(" - ", "-", {{ col }}),
-        {{ col }}
+      {{ col }} := gsub("([0-9]) - ([0-9])", "\\1-\\2", {{ col }})
       )
-    )
 }
