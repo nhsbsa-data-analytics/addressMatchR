@@ -157,7 +157,7 @@ calc_match_addresses <- function(
 
   # Normalise the score
   non_exact_match_df <- non_exact_match_df %>%
-    dplyr::mutate(SCORE = .data$SCORE / .data$MAX_SCORE) %>%
+    dplyr::mutate(SCORE = ROUND(TRUNC(.data$SCORE / .data$MAX_SCORE, 9), 8)) %>%
     dplyr::select(-.data$MAX_SCORE)
 
   # Take the top scoring lookup address for each primary address (if there are
