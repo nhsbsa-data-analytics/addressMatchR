@@ -7,7 +7,7 @@
 #' @examples
 #' @export
 # Calculate AddressBase Plus DPA single line address
-calc_addressbase_plus_dpa_single_line_address <- function(
+calc_addressbase_plus_dpa_single_line_address_df <- function(
     df,
     include_postcode = FALSE
     ) {
@@ -99,7 +99,7 @@ calc_addressbase_plus_dpa_single_line_address <- function(
 #' @examples
 #' @export
 # Calculate AddressBase Plus GEO single line address
-calc_addressbase_plus_geo_single_line_address <- function(
+calc_addressbase_plus_geo_single_line_address_df <- function(
     df,
     include_postcode=FALSE
     ) {
