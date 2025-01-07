@@ -2,12 +2,12 @@
 % Please edit documentation in R/tidy_single_line_address.R
 \name{tidy_single_line_address}
 \alias{tidy_single_line_address}
-\title{Tidy a single line address}
+\title{Tidy a lazy_table single line address}
 \usage{
 tidy_single_line_address(df, col, remove_postcode = FALSE)
 }
 \arguments{
-\item{df}{Database table}
+\item{df}{Must be  lazy_table (i.e. not a data frame)}
 
 \item{col}{Single line address column}
 

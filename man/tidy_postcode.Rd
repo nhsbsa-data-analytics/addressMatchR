@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidy_postcode.R
 \name{tidy_postcode}
 \alias{tidy_postcode}
-\title{Tidy a postcode}
+\title{Tidy a lazy_table postcode}
 \usage{
 tidy_postcode(df, col)
 }
